@@ -1,4 +1,4 @@
-package com.decodex.safarpak;
+package com.decodex.safarsaathi;
 
 import android.content.Intent;
 import android.net.Uri;

@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace 'com.decodex.safarpak'
+    namespace 'com.decodex.safarsaathi'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.decodex.safarpak"
+        applicationId "com.decodex.safarsaathi"
         minSdk 21
         targetSdk 34
         versionCode 1
