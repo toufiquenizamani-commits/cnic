@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "PakCNIC Decodex"
+rootProject.name = "Mandi Matrix"
