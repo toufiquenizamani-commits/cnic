@@ -27,20 +27,54 @@ jobs:
         with:
           gradle-version: '8.2'
 
-      # Compile both Debug (ready-to-run on devices) and Release (unsigned) builds
-      - name: Build with Gradle
+      # Compile Debug and Release builds for all projects
+      - name: Build Main App
         run: gradle assembleDebug assembleRelease
         working-directory: ${{ github.workspace }}
 
-      # Upload the compiled APK files as artifacts that the user can download
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: PakCNIC-Decodex-Debug-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+      - name: Build Bijli Nazar
+        run: gradle assembleDebug assembleRelease
+        working-directory: ${{ github.workspace }}/projects/bijli-nazar
 
-      - name: Upload Release APK (Unsigned)
+      - name: Build Setu Verify
+        run: gradle assembleDebug assembleRelease
+        working-directory: ${{ github.workspace }}/projects/setu
+
+      - name: Build Mandi Matrix
+        run: gradle assembleDebug assembleRelease
+        working-directory: ${{ github.workspace }}/projects/mandi-matrix
+
+      - name: Build Safar Saathi Pro
+        run: gradle assembleDebug assembleRelease
+        working-directory: ${{ github.workspace }}/projects/safar-saathi
+
+      # Upload the compiled APK files as artifacts
+      - name: Upload Main App APKs
         uses: actions/upload-artifact@v4
         with:
-          name: PakCNIC-Decodex-Release-APK-Unsigned
-          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          name: PakCNIC-Decodex-APKs
+          path: app/build/outputs/apk/**/*.apk
+
+      - name: Upload Bijli Nazar APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bijli-Nazar-APKs
+          path: projects/bijli-nazar/app/build/outputs/apk/**/*.apk
+
+      - name: Upload Setu Verify APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Setu-Verify-APKs
+          path: projects/setu/app/build/outputs/apk/**/*.apk
+
+      - name: Upload Mandi Matrix APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mandi-Matrix-APKs
+          path: projects/mandi-matrix/app/build/outputs/apk/**/*.apk
+
+      - name: Upload Safar Saathi Pro APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Safar-Saathi-Pro-APKs
+          path: projects/safar-saathi/app/build/outputs/apk/**/*.apk
