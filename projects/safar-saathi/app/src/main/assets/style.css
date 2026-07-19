@@ -52,6 +52,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 body {
   display: flex;
   flex-direction: column;
+  height: 100%;
   transition: var(--transition-normal);
   user-select: none;
   -webkit-user-select: none;
@@ -63,8 +64,35 @@ body {
   height: 100%;
   width: 100%;
   padding: 12px 16px;
+  overflow: hidden;
+}
+
+.trip-workspace {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: calc(100% - 44px);
+  overflow: hidden;
+}
+
+.wizard-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  height: 100%;
   overflow-y: auto;
 }
+
+.storyboard-panel {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+
 
 /* Header */
 header {
@@ -226,6 +254,8 @@ header {
   border-left: 2px dashed var(--border-subtle);
   margin-left: 8px;
   margin-bottom: 14px;
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .timeline-item {
