@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PakCNIC Decodex - Offline Mobile Identity Card Decoder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header>
+      <div class="logo-container">
+        <!-- SVG Logo Badge -->
+        <div class="logo-badge">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>CNIC Decodex</h1>
+          <p>National Identity Inspector</p>
+        </div>
+      </div>
+      
+      <!-- Theme Switcher & Status Badge -->
+      <div class="header-right">
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle visual theme">
+          <svg id="sun-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg id="moon-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <div class="badge-pill">
+          <span class="pulse-dot"></span>
+          <span>100% Offline</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Visual Digital Card Mockup -->
+    <section class="card-visual-wrapper">
+      <div class="digital-cnic-card" id="digital-card">
+        <div class="card-glow"></div>
+        <div class="card-flag-overlay">
+          <!-- Star and Crescent Emblem -->
+          <svg viewBox="0 0 100 100" width="120" height="120" fill="rgba(16, 185, 129, 0.08)">
+            <path d="M50 20 A30 30 0 1 1 35 75 A35 35 0 1 0 50 20 Z"/>
+            <polygon points="62,35 66,45 76,45 68,51 71,61 62,55 53,61 56,51 48,45 58,45" fill="rgba(16, 185, 129, 0.12)"/>
+          </svg>
+        </div>
+        
+        <div class="card-top">
+          <div class="card-label">ISLAMIC REPUBLIC OF PAKISTAN</div>
+          <div class="card-chip">
+            <div class="chip-line"></div>
+            <div class="chip-line"></div>
+            <div class="chip-line"></div>
+          </div>
+        </div>
+        
+        <div class="card-number" id="card-mock-number">00000-0000000-0</div>
+        
+        <div class="card-meta-row">
+          <div class="card-meta-item">
+            <span class="meta-label">GENDER</span>
+            <span class="meta-val" id="card-mock-gender">SELECT CARD</span>
+          </div>
+          <div class="card-meta-item" style="text-align: right;">
+            <span class="meta-label">ORIGIN</span>
+            <span class="meta-val" id="card-mock-district">PAKISTAN</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Layout Grid -->
+    <main class="dashboard-grid">
+      
+      <!-- Input and Decoded Results -->
+      <section class="left-column">
+        
+        <div class="glass-card" style="margin-bottom: 2rem;">
+          
+          <div class="input-panel-header">
+            <label for="cnic-input" class="panel-title-label">Enter Identity Number</label>
+            <span id="digit-counter" class="digit-counter">0 / 13 Digits</span>
+          </div>
+          
+          <!-- Search & Copy Box Container -->
+          <div class="search-container">
+            <div class="input-wrapper">
+              <input 
+                type="tel" 
+                id="cnic-input" 
+                class="cnic-input" 
+                placeholder="00000-0000000-0" 
+                maxlength="15" 
+                autocomplete="off"
+                aria-label="CNIC input field"
+              >
+              
+              <!-- Quick Copy Tools -->
+              <div class="copy-tools-container" id="copy-tools" style="display:none;">
+                <button class="copy-btn" id="btn-copy-formatted" title="Copy Formatted CNIC">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  <span>Format</span>
+                </button>
+                <button class="copy-btn" id="btn-copy-raw" title="Copy Raw Digits">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                  </svg>
+                  <span>Raw</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Custom Progress Bar -->
+            <div class="progress-bar-container">
+              <div id="progress-bar" class="progress-bar"></div>
+            </div>
+
+            <div id="validation-status" class="validation-badge status-incomplete">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              <span>Waiting for input...</span>
+            </div>
+          </div>
+
+          <!-- Interactive Digit Inspector HUD -->
+          <div style="margin-top: 1.5rem;">
+            <p class="section-micro-title">Digit Structure breakdown</p>
+            <div id="digit-inspector" class="digit-inspector">
+              <span id="i-prov" title="Province Code">X</span>
+              <span id="i-div" title="Division Code">X</span>
+              <span id="i-dist" title="District Code">X</span>
+              <span id="i-sub" title="Tehsil/UC Code">XX</span>
+              <span id="i-dash1">-</span>
+              <span id="i-fam" title="Family Unit tracking number">XXXXXXX</span>
+              <span id="i-dash2">-</span>
+              <span id="i-gen" title="Gender designation check digit">X</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Decoded Information Dashboard Panel -->
+        <div id="results-wrapper" class="results-wrapper">
+          <div class="results-header-row">
+            <h3 class="results-title">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+              </svg>
+              <span>Decoded Identity Insights</span>
+            </h3>
+            
+            <!-- Web Share Tool -->
+            <button id="btn-share-details" class="share-action-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+              <span>Share Insights</span>
+            </button>
+          </div>
+          
+          <div class="results-grid">
+            
+            <div class="result-item theme-province" id="card-province">
+              <div class="result-label">Province / Territory</div>
+              <div id="val-province" class="result-value">-</div>
+              <div class="result-desc">Decoded from first digit of the location code block.</div>
+            </div>
+            
+            <div class="result-item theme-division" id="card-division">
+              <div class="result-label">Administrative Division</div>
+              <div id="val-division" class="result-value">-</div>
+              <div class="result-desc">Decoded from the second digit of the location code block.</div>
+            </div>
+            
+            <div class="result-item theme-district" id="card-district">
+              <div class="result-label">Registration District</div>
+              <div id="val-district" class="result-value">-</div>
+              <div class="result-desc">Decoded from the third, fourth, & fifth digits.</div>
+            </div>
+            
+            <div class="result-item theme-gender" id="card-gender">
+              <div class="result-label">Gender Classification</div>
+              <div id="val-gender" class="result-value">-</div>
+              <div class="result-desc">Odd terminal digit indicates Male, Even indicates Female.</div>
+            </div>
+            
+            <div class="result-item theme-family full-width-card" id="card-family">
+              <div class="result-label">NADRA Family Unit ID</div>
+              <div id="val-family" class="result-value">-</div>
+              <div class="result-desc">This middle segment links relatives to build digital family trees inside the database registry.</div>
+            </div>
+            
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Column: History and Integrated Utilities -->
+      <section class="right-column">
+        
+        <!-- Offline History Log -->
+        <div class="glass-card" style="margin-bottom: 2rem;">
+          <div class="history-header-row">
+            <h3 class="sms-utility-header" style="margin-bottom: 0;">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>Recent Scans Drawer</span>
+            </h3>
+            <button id="btn-clear-history" class="clear-history-btn" style="display:none;">Clear</button>
+          </div>
+          
+          <div class="history-list" id="history-container">
+            <div class="history-placeholder">No recent scans stored on this device.</div>
+          </div>
+        </div>
+
+        <!-- Integrated Utility SMS Shortcuts -->
+        <div class="glass-card">
+          <h3 class="sms-utility-header">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            <span>Official NADRA SMS Kit</span>
+          </h3>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+            Directly trigger inquiry SMS channels. (Tapping will open your phone's native SMS app).
+          </p>
+
+          <div class="sms-grid">
+            
+            <div class="sms-card">
+              <div class="sms-meta">
+                <span class="sms-title">Voter & Polling Registration</span>
+                <span class="sms-number">8300</span>
+              </div>
+              <p class="sms-desc">Verify your vote registration, serial number, and assigned polling location.</p>
+              <a href="sms:8300" id="sms-8300" class="sms-action-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Check Vote Status</span>
+              </a>
+            </div>
+
+            <div class="sms-card">
+              <div class="sms-meta">
+                <span class="sms-title">PTA SIM Verification</span>
+                <span class="sms-number">668</span>
+              </div>
+              <p class="sms-desc">Returns a list of active network SIM cards registered under this identity card.</p>
+              <a href="sms:668" id="sms-668" class="sms-action-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Check Active SIMs</span>
+              </a>
+            </div>
+
+            <div class="sms-card">
+              <div class="sms-meta">
+                <span class="sms-title">NADRA Family Verification</span>
+                <span class="sms-number">8009</span>
+              </div>
+              <p class="sms-desc">Verifies details of registered family tree members linked to your unit ID.</p>
+              <a href="sms:8009" id="sms-8009" class="sms-action-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Verify Family Tree</span>
+              </a>
+            </div>
+
+            <div class="sms-card">
+              <div class="sms-meta">
+                <span class="sms-title">Central ID Verification</span>
+                <span class="sms-number">7000</span>
+              </div>
+              <p class="sms-desc">Verifies if this identity card is active and registered inside NADRA database.</p>
+              <a href="sms:7000" id="sms-7000" class="sms-action-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Verify Identity Status</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Information Hub -->
+    <section class="info-section">
+      <h2 class="info-header">Pakistan National Identity Card Structure</h2>
+      
+      <div class="faq-grid">
+        
+        <div class="faq-card">
+          <h4>What do the first 5 digits represent?</h4>
+          <p>
+            The first 5 digits represents the location of the cardholder. The first digit represents the province, second represents division, third represents district, fourth represents tehsil, and the fifth represents the Union Council.
+          </p>
+        </div>
+
+        <div class="faq-card">
+          <h4>What is the purpose of the middle 7 digits?</h4>
+          <p>
+            The middle 7 digits are a family tracking number. NADRA groups members of the same family together to compile relationship family trees for verify purposes.
+          </p>
+        </div>
+
+        <div class="faq-card">
+          <h4>What does the final 1 digit tell us?</h4>
+          <p>
+            The last check digit denotes gender. Odd values (1, 3, 5, 7, 9) are assigned to male cardholders, while even values (2, 4, 6, 8) are assigned to female cardholders.
+          </p>
+        </div>
+
+        <div class="faq-card">
+          <h4>Is my date of birth hidden in the card number?</h4>
+          <p>
+            No. The CNIC digits contain no hidden dates, age, or expiry configurations. All timestamps are stored and cross-referenced in the secure databases of NADRA.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2026 PakCNIC Decodex. Fully Offline. Zero Internet Required.</p>
+      <p>Data resolved locally using public administrative mappings. For official verification inquiries, contact NADRA.</p>
+    </footer>
+
+  </div>
+
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
