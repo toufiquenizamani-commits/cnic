@@ -1,0 +1,377 @@
+/* Mandi Matrix CSS Layout System */
+
+/* Theme Colors */
+.dark-theme {
+  --bg-deep: #010804;
+  --bg-surface: #0a170f;
+  --border-subtle: #142a1d;
+  --text-primary: #e6f2ea;
+  --text-secondary: #588065;
+  --accent-wholesale: #00e676; /* Green */
+  --accent-retail: #ffa726;    /* Orange */
+  --accent-danger: #ff5252;
+  --shadow-color: rgba(0, 0, 0, 0.6);
+}
+
+.light-theme {
+  --bg-deep: #f3f7f4;
+  --bg-surface: #ffffff;
+  --border-subtle: #cfe0d4;
+  --text-primary: #121e16;
+  --text-secondary: #5b7965;
+  --accent-wholesale: #2e7d32;
+  --accent-retail: #f57c00;
+  --accent-danger: #d32f2f;
+  --shadow-color: rgba(18, 30, 22, 0.08);
+}
+
+:root {
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --transition-normal: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition-normal);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 12px 16px;
+  overflow-y: auto;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  font-size: 1.25rem;
+  color: var(--accent-wholesale);
+}
+
+.header-logo h1 {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+/* Glass Card */
+.glass-card {
+  background: rgba(10, 23, 15, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-row label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.filter-row select {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  height: 36px;
+  padding: 0 10px;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  outline: none;
+}
+
+/* Chalkboard grid items */
+.board-section {
+  margin-bottom: 12px;
+}
+
+.board-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.chalkboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.chalk-card {
+  background: rgba(5, 12, 8, 0.9);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.crop-icon {
+  font-size: 1.1rem;
+}
+
+.crop-name {
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.price-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.price-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.price-line span:last-child {
+  color: var(--text-primary);
+}
+
+.color-ws {
+  color: var(--accent-wholesale) !important;
+}
+
+.color-rt {
+  color: var(--accent-retail) !important;
+}
+
+/* Visual bar comparing pricing */
+.spread-bar-container {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 4px;
+}
+
+.spread-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-wholesale) 50%, var(--accent-retail) 100%);
+  border-radius: 2px;
+}
+
+/* Planner area */
+.planner-section h3 {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.section-subtitle {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  margin-top: -2px;
+  margin-bottom: 12px;
+}
+
+.planner-inputs {
+  display: grid;
+  grid-template-columns: 1fr 0.6fr 0.6fr;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.planner-inputs label {
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.planner-inputs select, .planner-inputs input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  height: 32px;
+  padding: 0 6px;
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  outline: none;
+}
+
+.btn-add {
+  height: 32px;
+  background: var(--accent-wholesale);
+  color: #010804;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-add:active {
+  transform: scale(0.95);
+}
+
+/* Items lists */
+.budget-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--border-subtle);
+  padding-bottom: 10px;
+}
+
+.budget-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.budget-row-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: var(--accent-danger);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* Totals panel */
+.budget-totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 8px;
+  text-align: center;
+}
+
+.total-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.total-col .title {
+  font-size: 0.55rem;
+  color: var(--text-secondary);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cost-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--accent-wholesale);
+}
+
+.text-alert {
+  color: var(--accent-retail) !important;
+}
+
+/* Light Theme overrides */
+.light-theme .glass-card {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.light-theme .theme-toggle-btn {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.light-theme .chalk-card {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.light-theme .btn-add {
+  color: #ffffff;
+}
