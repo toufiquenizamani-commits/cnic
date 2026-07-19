@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentDecodedText = "";
   let activeMode = "CNIC"; // "CNIC" or "MOBILE"
+  let cardBackVisible = false;
 
   // Telecom operator prefixes database mapping
   const OPERATOR_PREFIXES = [
@@ -116,7 +117,132 @@ document.addEventListener("DOMContentLoaded", () => {
     { code: "0355", carrier: "SCOM", styleClass: "sim-scom", glowClass: "glow-scom" }
   ];
 
-  // 1. Drawer Opening & Closing Logic
+  // 1. Toast Notification Utility
+  function showToast(message, duration = 3000) {
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = message;
+    container.appendChild(toast);
+    
+    // Play light haptic feedback
+    if (window.NativeBridge) window.NativeBridge.haptic("light");
+    
+    setTimeout(() => {
+      toast.remove();
+    }, duration + 500);
+  }
+
+  // 2. Confetti Particle Canvas Animation Loop (Lightweight, pure canvas)
+  const confettiCanvas = document.getElementById("confetti-canvas");
+  const ctx = confettiCanvas.getContext("2d");
+  let confettiParticles = [];
+  let confettiActive = false;
+
+  function resizeConfetti() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeConfetti);
+  resizeConfetti();
+
+  function fireConfetti() {
+    confettiCanvas.style.display = "block";
+    const colors = ["#00e676", "#00b0ff", "#ffd54f", "#ff4081", "#e8f5e9"];
+    
+    // Build particle array
+    for (let i = 0; i < 40; i++) {
+      confettiParticles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 50,
+        vx: (Math.random() - 0.5) * 12,
+        vy: (Math.random() - 0.5) * 12 - 4,
+        size: Math.random() * 5 + 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1.0,
+        decay: Math.random() * 0.02 + 0.015
+      });
+    }
+
+    if (!confettiActive) {
+      confettiActive = true;
+      animateConfetti();
+    }
+  }
+
+  function animateConfetti() {
+    if (confettiParticles.length === 0) {
+      confettiCanvas.style.display = "none";
+      confettiActive = false;
+      return;
+    }
+    
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    
+    confettiParticles = confettiParticles.filter(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.25; // Simple gravity factor
+      p.life -= p.decay;
+
+      if (p.life > 0) {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+        return true;
+      }
+      return false;
+    });
+
+    requestAnimationFrame(animateConfetti);
+  }
+
+  // 3. Double-Tap Gesture for Card Rotation (CNIC Mode Back side)
+  let tapTimer = null;
+  digitalCard.addEventListener("click", () => {
+    if (activeMode === "MOBILE") return; // Mobile Mode flips automatically to show SIM
+
+    if (tapTimer === null) {
+      tapTimer = setTimeout(() => {
+        tapTimer = null;
+      }, 300);
+    } else {
+      clearTimeout(tapTimer);
+      tapTimer = null;
+      toggleCNICBack();
+    }
+  });
+
+  function toggleCNICBack() {
+    cardBackVisible = !cardBackVisible;
+    if (cardBackVisible) {
+      document.getElementById("sim-back-content").style.display = "none";
+      document.getElementById("cnic-back-content").style.display = "flex";
+      digitalCard.classList.add("flipped");
+      showToast("Card back details revealed");
+    } else {
+      digitalCard.classList.remove("flipped");
+      showToast("Returned to front side");
+    }
+  }
+
+  function resetCNICBackState() {
+    cardBackVisible = false;
+    digitalCard.classList.remove("flipped");
+  }
+
+  // 4. Laser Scan Sweep Trigger
+  function triggerLaserScan() {
+    const laser = document.getElementById("laser-scan");
+    if (!laser) return;
+    laser.style.display = "block";
+    setTimeout(() => {
+      laser.style.display = "none";
+    }, 1600);
+  }
+
+  // 5. Drawer Opening & Closing Logic
   toggleHistory.addEventListener("click", () => drawerHistory.classList.add("open"));
   toggleUtilities.addEventListener("click", () => {
     drawerUtilities.classList.add("open");
@@ -124,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   drawerCloseBtns.forEach(btn => {
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", () => {
       const targetId = btn.getAttribute("data-close");
       document.getElementById(targetId).classList.remove("open");
     });
@@ -137,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 2. Utilities Drawer Internal Tabs
+  // 6. Utilities Drawer Internal Tabs
   tabSms.addEventListener("click", () => {
     tabSms.classList.add("active");
     tabPrefix.classList.remove("active");
@@ -167,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     if (filtered.length === 0) {
-      list.innerHTML = '<div style="font-size: 0.75rem; text-align: center; padding: 8px;">No prefixes match search.</div>';
+      list.innerHTML = '<div style="font-size: 0.75rem; text-align: center; padding: 12px; color: var(--text-secondary);">No prefixes match search.</div>';
       return;
     }
 
@@ -182,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 3. Theme Toggle Setup
+  // 7. Theme Toggle Setup
   const savedTheme = localStorage.getItem("app-theme") || "dark";
   setTheme(savedTheme);
 
@@ -206,15 +332,30 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("app-theme", theme);
   }
 
-  // 4. Input Formatting and Auto-Detection
+  // 8. Input Formatting and Auto-Detection
+  let lastValLen = 0;
   cnicInput.addEventListener("input", (e) => {
     let raw = e.target.value.replace(/\D/g, ""); // Strip non-digits
     
+    // Play light tick for each digit entered
+    if (raw.length > lastValLen && window.NativeBridge) {
+      window.NativeBridge.haptic("light");
+    }
+    lastValLen = raw.length;
+
     // Auto-detect mode based on leading prefix
+    const oldMode = activeMode;
     if (raw.startsWith("0")) {
       activeMode = "MOBILE";
     } else {
       activeMode = "CNIC";
+    }
+
+    // Trigger haptic bump when shifting modes
+    if (activeMode !== oldMode) {
+      if (window.NativeBridge) window.NativeBridge.haptic("medium");
+      resetCNICBackState(); // Reset flip state
+      triggerLaserScan();   // Play scan animation
     }
 
     let formatted = "";
@@ -254,11 +395,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 5. CNIC Mode Processing
+  // 9. CNIC Mode Processing
   function processCNIC(cnic) {
     const raw = cnic.replace(/\D/g, "");
 
-    // Rotate visual mockup to front if flipped
+    // Rotate visual mockup to front if flipped and reset visibility
     digitalCard.classList.remove("flipped");
     cardMockNumber.textContent = cnic || "00000-0000000-0";
     
@@ -369,17 +510,21 @@ document.addEventListener("DOMContentLoaded", () => {
     inspectorHudWrapper.classList.add("active");
     copyTools.style.display = "flex";
 
-    // Play native haptic trigger
-    if (navigator.vibrate) navigator.vibrate(50);
+    // Play native haptic trigger + Confetti particles
+    if (window.NativeBridge) window.NativeBridge.haptic("success");
+    fireConfetti();
+    showToast("CNIC successfully decoded!");
 
     saveToHistory(decoded.district, decoded.province, gender);
   }
 
-  // 6. Mobile Mode Processing
+  // 10. Mobile Mode Processing
   function processMobile(mobile) {
     const raw = mobile.replace(/\D/g, "");
 
     // 3D Flip card to reveal SIM back view
+    document.getElementById("sim-back-content").style.display = "block";
+    document.getElementById("cnic-back-content").style.display = "none";
     digitalCard.classList.add("flipped");
     simMockNumber.textContent = mobile || "0300-0000000";
 
@@ -415,8 +560,7 @@ document.addEventListener("DOMContentLoaded", () => {
     valMobileCarrier.textContent = operator.carrier;
     valMobilePrefix.textContent = operator.code;
 
-    // Configure Mobile OSINT search buttons
-    // WhatsApp direct profile lookup (replaces 03 with 923)
+    // Configure Mobile OSINT search buttons (replaces 03 with 923)
     const waNumber = "92" + raw.substring(1);
     btnOsintWhatsapp.href = `https://wa.me/${waNumber}`;
 
@@ -439,8 +583,10 @@ document.addEventListener("DOMContentLoaded", () => {
     inspectorHudWrapper.classList.remove("active");
     copyTools.style.display = "flex";
 
-    // Play native haptic trigger
-    if (navigator.vibrate) navigator.vibrate(50);
+    // Play native haptic trigger + Confetti particles
+    if (window.NativeBridge) window.NativeBridge.haptic("success");
+    fireConfetti();
+    showToast(`Operator resolved as ${operator.carrier}`);
   }
 
   // Helper cleanup functions for brand styling
@@ -487,9 +633,16 @@ document.addEventListener("DOMContentLoaded", () => {
     cardMockDistrict.textContent = "INVALID";
     simMockCarrier.textContent = "INVALID";
     simMockOperator.textContent = "INVALID PREFIX";
+
+    // Play shake and error haptic feedback
+    digitalCard.classList.add("shake-element");
+    if (window.NativeBridge) window.NativeBridge.haptic("error");
+    setTimeout(() => {
+      digitalCard.classList.remove("shake-element");
+    }, 450);
   }
 
-  // 7. Clipboard and Sharing
+  // 11. Clipboard and Sharing
   const setupClipboardCopy = (btn, getValue) => {
     btn.addEventListener("click", () => {
       const val = getValue();
@@ -499,7 +652,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const span = btn.querySelector("span");
         const orig = span.textContent;
         span.textContent = "Copied!";
-        if (navigator.vibrate) navigator.vibrate(25);
+        if (window.NativeBridge) window.NativeBridge.haptic("light");
         setTimeout(() => span.textContent = orig, 1200);
       });
     });
@@ -517,13 +670,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       navigator.clipboard.writeText(currentDecodedText).then(() => {
         const span = btnShare.querySelector("span");
-        span.textContent = "Copied to clipboard!";
+        span.textContent = "Copied!";
         setTimeout(() => span.textContent = "Share", 1500);
       });
     }
   });
 
-  // 8. History Storage
+  // 12. History Storage
   function saveToHistory(district, province, gender) {
     let history = JSON.parse(localStorage.getItem("scan-history")) || [];
     const dup = history.some(h => h.district === district && h.province === province && h.gender === gender);
@@ -541,7 +694,12 @@ document.addEventListener("DOMContentLoaded", () => {
     historyContainer.innerHTML = "";
 
     if (history.length === 0) {
-      historyContainer.innerHTML = '<div class="history-placeholder">No recent scans stored.</div>';
+      historyContainer.innerHTML = `
+        <div class="history-empty-state">
+          <div class="empty-icon">📋</div>
+          <p>No scans yet</p>
+          <span style="font-size: 0.65rem; color: var(--text-secondary);">Start typing to decode Pakistani IDs & numbers</span>
+        </div>`;
       btnClearHistory.style.display = "none";
       return;
     }
@@ -568,7 +726,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderHistory();
 
-  // 9. Interactive Highlight Linking between grids and visual card
+  // 13. Interactive Highlight Linking between grids and visual card
   const setupHoverHighlight = (cardId, spans) => {
     const cardEl = document.getElementById(cardId);
     if (!cardEl) return;
@@ -586,6 +744,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
       cardEl.classList[add ? "add" : "remove"]("active-glow");
+      
+      // Tactile trigger on hover
+      if (add && window.NativeBridge) {
+        window.NativeBridge.haptic("light");
+      }
     };
 
     cardEl.addEventListener("touchstart", () => applyHighlights(true));

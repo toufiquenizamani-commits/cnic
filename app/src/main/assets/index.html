@@ -5,8 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PakCNIC Decodex - Identity & Telecom Inspector</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Native Bridge for Haptics & Audio -->
+  <script>
+    window.NativeBridge = {
+      haptic: (type) => { if(window.AndroidBridge && window.AndroidBridge.haptic) window.AndroidBridge.haptic(type); }
+    };
+  </script>
 </head>
 <body class="dark-theme">
+  <!-- Toast Notifications Container -->
+  <div id="toast-container" class="toast-container"></div>
 
   <div class="app-container">
     
@@ -44,6 +52,11 @@
     <!-- Visual Digital Card Mockup (CNIC Front / SIM Back) -->
     <section class="card-visual-wrapper">
       <div class="card-perspective-container">
+        <!-- Laser Scan Effect -->
+        <div id="laser-scan" class="laser-beam" style="display:none;">
+          <div class="laser-glow"></div>
+        </div>
+
         <div class="digital-card-rotator" id="digital-card">
           
           <!-- Front Face: CNIC Card Layout -->
@@ -79,36 +92,53 @@
             </div>
           </div>
           
-          <!-- Back Face: SIM Card Layout -->
+          <!-- Back Face: SIM Card / CNIC Back Layout -->
           <div class="card-face card-back">
             <div class="card-glow"></div>
             
-            <div class="card-top">
-              <div class="sim-carrier-logo" id="sim-mock-carrier">CARRIER</div>
-              <div class="sim-chip-wrapper">
-                <div class="sim-chip-grid">
-                  <div class="sim-chip-contact"></div>
-                  <div class="sim-chip-contact"></div>
-                  <div class="sim-chip-contact"></div>
-                  <div class="sim-chip-contact"></div>
-                  <div class="sim-chip-contact"></div>
-                  <div class="sim-chip-contact"></div>
+            <!-- SIM Card Content (Hidden by default or toggled when entering Mobile Number) -->
+            <div id="sim-back-content">
+              <div class="card-top">
+                <div class="sim-carrier-logo" id="sim-mock-carrier">CARRIER</div>
+                <div class="sim-chip-wrapper">
+                  <div class="sim-chip-grid">
+                    <div class="sim-chip-contact"></div>
+                    <div class="sim-chip-contact"></div>
+                    <div class="sim-chip-contact"></div>
+                    <div class="sim-chip-contact"></div>
+                    <div class="sim-chip-contact"></div>
+                    <div class="sim-chip-contact"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="sim-number" id="sim-mock-number">0300-0000000</div>
+              
+              <div class="sim-meta-row">
+                <div class="sim-meta-item">
+                  <span class="sim-meta-label">TELECOM REGION</span>
+                  <span class="sim-meta-val" id="sim-mock-operator">RESOLVING...</span>
+                </div>
+                <div class="sim-meta-item" style="text-align: right;">
+                  <span class="sim-meta-label">COUNTRY</span>
+                  <span class="sim-meta-val">PAKISTAN</span>
                 </div>
               </div>
             </div>
-            
-            <div class="sim-number" id="sim-mock-number">0300-0000000</div>
-            
-            <div class="sim-meta-row">
-              <div class="sim-meta-item">
-                <span class="sim-meta-label">TELECOM REGION</span>
-                <span class="sim-meta-val" id="sim-mock-operator">RESOLVING...</span>
+
+            <!-- CNIC Card Back-Side Content (Toggled via double tap/long press in CNIC mode) -->
+            <div id="cnic-back-content" style="display: none; height: 100%; flex-direction: column; justify-content: space-between;">
+              <div class="magnetic-stripe"></div>
+              <div class="signature-panel">
+                <span class="auth-signature">AUTHORIZED SIGNATURE</span>
+                <div class="sig-line"></div>
               </div>
-              <div class="sim-meta-item" style="text-align: right;">
-                <span class="sim-meta-label">COUNTRY</span>
-                <span class="sim-meta-val">PAKISTAN</span>
+              <div class="back-text">
+                <p>This card is property of the Government of Pakistan.</p>
+                <p>If found, please return to the nearest NADRA office.</p>
               </div>
             </div>
+
           </div>
           
         </div>
@@ -394,6 +424,9 @@
     </div>
 
   </div>
+
+  <!-- Confetti Canvas Particle Container -->
+  <canvas id="confetti-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none;"></canvas>
 
   <script src="db.js"></script>
   <script src="app.js"></script>

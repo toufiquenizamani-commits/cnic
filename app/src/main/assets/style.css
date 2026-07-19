@@ -1031,3 +1031,150 @@ header {
 .carrier-ufone { background: rgba(251, 140, 0, 0.12); color: #fb8c00; }
 .carrier-scom { background: rgba(76, 175, 80, 0.12); color: #4caf50; }
 .carrier-warid { background: rgba(229, 57, 53, 0.12); color: #ff5252; border: 1px dashed rgba(229, 57, 53, 0.3); }
+
+/* Holographic Shimmer Effect for ID Mockup Card */
+.card-front::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(0, 255, 200, 0.08) 45%,
+    rgba(255, 215, 0, 0.06) 50%,
+    rgba(0, 255, 200, 0.08) 55%,
+    transparent 70%
+  );
+  animation: holoShine 5s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
+
+@keyframes holoShine {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Laser Scan Animation overlay */
+.laser-beam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 50;
+  pointer-events: none;
+  animation: laserScan 1.6s ease-in-out infinite;
+}
+
+.laser-glow {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #00ff88, transparent);
+  box-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+}
+
+@keyframes laserScan {
+  0% { top: 10%; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { top: 90%; opacity: 0; }
+}
+
+/* CNIC Card Back-Side specific elements */
+.magnetic-stripe {
+  width: 120%;
+  margin-left: -10%;
+  height: 36px;
+  background: linear-gradient(180deg, #151515 0%, #000000 50%, #151515 100%);
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+.signature-panel {
+  background: #fdfdfa;
+  height: 28px;
+  border-radius: 4px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
+.auth-signature {
+  font-size: 0.5rem;
+  color: #888;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.sig-line {
+  width: 50%;
+  height: 1px;
+  border-bottom: 1.5px dashed #444;
+}
+
+.back-text {
+  font-size: 0.52rem;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* Toast Notifications overlay styles */
+.toast-container {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(12, 30, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  color: #e8f5e9;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  animation: toastSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, toastFadeOut 0.3s ease 2.7s forwards;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  max-width: 85vw;
+  text-align: center;
+}
+
+@keyframes toastSlideUp {
+  from { transform: translateY(15px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes toastFadeOut {
+  to { opacity: 0; transform: translateY(-8px) scale(0.95); }
+}
+
+/* Shake Animation for Invalid inputs */
+.shake-element {
+  animation: shakeAction 0.4s ease-in-out;
+}
+
+@keyframes shakeAction {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+

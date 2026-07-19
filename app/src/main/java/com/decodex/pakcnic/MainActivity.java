@@ -43,7 +43,18 @@ public class MainActivity extends AppCompatActivity {
         // Force hardware rendering acceleration for smooth visual transitions
         mWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         
-        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(android.webkit.ConsoleMessage consoleMessage) {
+                android.util.Log.d("CNICDecodex_Web", consoleMessage.message() + " -- From line "
+                        + consoleMessage.lineNumber() + " of " + consoleMessage.sourceId());
+                return true;
+            }
+        });
+        
+        // Add native bridge interface for Javascript to trigger haptics
+        mWebView.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
+        
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -69,6 +80,63 @@ public class MainActivity extends AppCompatActivity {
         // Load the main entry HTML from the local Android assets directory
         mWebView.loadUrl("file:///android_asset/index.html");
     }
+
+    /**
+     * Native JavaScript Interface to bridge haptic vibration feedback.
+     */
+    public static class AndroidBridge {
+        private final android.os.Vibrator vibrator;
+
+        AndroidBridge(android.content.Context context) {
+            vibrator = (android.os.Vibrator) context.getSystemService(android.content.Context.VIBRATOR_SERVICE);
+        }
+
+        @android.webkit.JavascriptInterface
+        public void haptic(String type) {
+            if (vibrator == null || !vibrator.hasVibrator()) return;
+
+            switch (type) {
+                case "light":
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        vibrator.vibrate(android.os.VibrationEffect.createOneShot(12, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+                        vibrator.vibrate(12);
+                    }
+                    break;
+                case "medium":
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        vibrator.vibrate(android.os.VibrationEffect.createOneShot(35, 120));
+                    } else {
+                        vibrator.vibrate(35);
+                    }
+                    break;
+                case "heavy":
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        vibrator.vibrate(android.os.VibrationEffect.createOneShot(65, 180));
+                    } else {
+                        vibrator.vibrate(65);
+                    }
+                    break;
+                case "success":
+                    long[] successPattern = {0, 25, 45, 25, 45, 45};
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        vibrator.vibrate(android.os.VibrationEffect.createWaveform(successPattern, -1));
+                    } else {
+                        vibrator.vibrate(successPattern, -1);
+                    }
+                    break;
+                case "error":
+                    long[] errorPattern = {0, 80};
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        vibrator.vibrate(android.os.VibrationEffect.createWaveform(errorPattern, -1));
+                    } else {
+                        vibrator.vibrate(errorPattern, -1);
+                    }
+                    break;
+            }
+        }
+    }
+
 
     /**
      * Programmatically constructs and presents a fullscreen In-App Web Inspector sheet.
