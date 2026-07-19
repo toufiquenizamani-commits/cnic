@@ -299,8 +299,8 @@ header {
 
 .storyboard-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 8px;
 }
 
 /* Drive Mode HUD Overlay */

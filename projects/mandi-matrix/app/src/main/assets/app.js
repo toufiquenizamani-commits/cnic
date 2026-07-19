@@ -189,6 +189,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 6. Export Rate Card PDF Report
+  const btnExportPdf = document.getElementById("btn-export-pdf");
+  if (btnExportPdf) {
+    btnExportPdf.addEventListener("click", () => {
+      triggerHaptic("medium");
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.export_pdf_report) {
+        const city = citySelect.value;
+        const cropsData = MANDI_RATES[city] || {};
+        window.pywebview.api.export_pdf_report(city, JSON.stringify(cropsData)).then(res => {
+          alert(res.message);
+        }).catch(err => {
+          alert("Error exporting PDF: " + err);
+        });
+      } else {
+        window.print();
+      }
+    });
+  }
+
   // Initial Runs
   const initialCity = citySelect.value;
   renderRates(initialCity);

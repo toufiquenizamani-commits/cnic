@@ -283,6 +283,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // 5. Print PDF Exporter Bridge
+  const btnExportPdf = document.getElementById("btn-export-pdf");
+  if (btnExportPdf) {
+    btnExportPdf.addEventListener("click", () => {
+      triggerHaptic("medium");
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.export_trip_postcard) {
+        const payload = JSON.stringify({
+          routeName: currentRoute ? currentRoute.name : "Custom Route",
+          car: carSelect.value,
+          distance: summaryDistance.textContent,
+          eta: summaryEta.textContent,
+          fuelCost: summaryFuelCost.textContent
+        });
+        window.pywebview.api.export_trip_postcard(payload).then(res => {
+          alert(res.message);
+        }).catch(err => {
+          alert("Error exporting PDF: " + err);
+        });
+      } else {
+        window.print();
+      }
+    });
+  }
+
   // Initial Wizard trigger
   initWizard();
 });

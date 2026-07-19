@@ -252,6 +252,31 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast(msg);
   };
 
+  // 6. Export Audit PDF Report
+  const btnExportPdf = document.getElementById("btn-export-pdf");
+  if (btnExportPdf) {
+    btnExportPdf.addEventListener("click", () => {
+      triggerHaptic("medium");
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.export_audit_pdf) {
+        const payload = JSON.stringify({
+          disco: discoSelect.value,
+          units: unitsInput.value,
+          base: auditBase.textContent,
+          surcharges: auditSurcharges.textContent,
+          taxes: auditTaxes.textContent,
+          total: auditTotal.textContent
+        });
+        window.pywebview.api.export_audit_pdf(payload).then(res => {
+          alert(res.message);
+        }).catch(err => {
+          alert("Error exporting PDF: " + err);
+        });
+      } else {
+        window.print();
+      }
+    });
+  }
+
   // Initial runs
   calculateAcUsage();
 });

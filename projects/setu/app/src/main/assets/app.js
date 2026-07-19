@@ -182,4 +182,27 @@ document.addEventListener("DOMContentLoaded", () => {
   // Intercept button click triggers for haptics
   btnExcise.addEventListener("click", () => triggerHaptic("success"));
   btnCplc.addEventListener("click", () => triggerHaptic("success"));
+
+  // 4. Export Verification PDF Report
+  const btnExportPdf = document.getElementById("btn-export-pdf");
+  if (btnExportPdf) {
+    btnExportPdf.addEventListener("click", () => {
+      triggerHaptic("medium");
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.generate_report) {
+        const payload = JSON.stringify({
+          plate: mockRegNo.textContent,
+          owner: mockOwner.textContent,
+          model: mockModel.textContent,
+          color: mockColor.textContent
+        });
+        window.pywebview.api.generate_report(payload).then(res => {
+          alert(res.message);
+        }).catch(err => {
+          alert("Error exporting PDF: " + err);
+        });
+      } else {
+        window.print();
+      }
+    });
+  }
 });
