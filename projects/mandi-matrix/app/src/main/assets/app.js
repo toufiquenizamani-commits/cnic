@@ -27,14 +27,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Check and apply system theme preference initially
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (prefersDark) {
+    document.body.classList.add("dark-theme");
+    sunIcon.style.display = "block";
+    moonIcon.style.display = "none";
+  } else {
+    document.body.classList.add("light-theme");
+    sunIcon.style.display = "none";
+    moonIcon.style.display = "block";
+  }
+
   // 1. Theme Toggle
   themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("light-theme");
-    document.body.classList.toggle("dark-theme");
-    
-    const isLight = document.body.classList.contains("light-theme");
-    sunIcon.style.display = isLight ? "none" : "block";
-    moonIcon.style.display = isLight ? "block" : "none";
+    if (document.body.classList.contains("dark-theme")) {
+      document.body.classList.remove("dark-theme");
+      document.body.classList.add("light-theme");
+      sunIcon.style.display = "none";
+      moonIcon.style.display = "block";
+    } else {
+      document.body.classList.remove("light-theme");
+      document.body.classList.add("dark-theme");
+      sunIcon.style.display = "block";
+      moonIcon.style.display = "none";
+    }
     triggerHaptic("light");
   });
 

@@ -36,13 +36,36 @@
         <div class="control-grid">
           <div class="input-field">
             <label for="origin-input">From (Origin)</label>
-            <input type="text" id="origin-input" placeholder="e.g. Lahore">
+            <input type="text" id="origin-input" list="cities-list" placeholder="e.g. Lahore">
           </div>
           <div class="input-field">
             <label for="destination-input">To (Destination)</label>
-            <input type="text" id="destination-input" placeholder="e.g. Islamabad">
+            <input type="text" id="destination-input" list="cities-list" placeholder="e.g. Islamabad">
           </div>
         </div>
+
+        <datalist id="cities-list">
+          <option value="Lahore"></option>
+          <option value="Islamabad"></option>
+          <option value="Karachi"></option>
+          <option value="Peshawar"></option>
+          <option value="Quetta"></option>
+          <option value="Multan"></option>
+          <option value="Faisalabad"></option>
+          <option value="Gwadar"></option>
+          <option value="Naran"></option>
+          <option value="Kaghan"></option>
+          <option value="Hunza"></option>
+          <option value="Gilgit"></option>
+          <option value="Swat"></option>
+          <option value="Murree"></option>
+          <option value="Abbottabad"></option>
+          <option value="Skardu"></option>
+          <option value="Muzaffarabad"></option>
+          <option value="Chitral"></option>
+          <option value="Nathia Gali"></option>
+          <option value="Sialkot"></option>
+        </datalist>
 
         <div class="input-field">
           <label for="car-select">Your Vehicle</label>

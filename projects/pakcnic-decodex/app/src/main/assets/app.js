@@ -320,7 +320,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 7. Theme Toggle Setup
-  const savedTheme = localStorage.getItem("app-theme") || "dark";
+  const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const defaultTheme = systemPrefersDark ? "dark" : "light";
+  const savedTheme = localStorage.getItem("app-theme") || defaultTheme;
   setTheme(savedTheme);
 
   themeToggle.addEventListener("click", () => {
