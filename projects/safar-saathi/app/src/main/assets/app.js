@@ -10,7 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const storyboardPanel = document.getElementById("storyboard-panel");
   const drivePanel = document.getElementById("drive-mode-panel");
   
-  const routeSelect = document.getElementById("route-select");
+  const originInput = document.getElementById("origin-input");
+  const destinationInput = document.getElementById("destination-input");
   const carSelect = document.getElementById("car-select");
   const passengersInput = document.getElementById("passengers-input");
   const luggageInput = document.getElementById("luggage-input");
@@ -44,14 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 1. Initialize Options selectors
   function initWizard() {
-    routeSelect.innerHTML = "";
-    HIGHWAY_ROUTES.forEach((route, idx) => {
-      const opt = document.createElement("option");
-      opt.value = idx;
-      opt.textContent = route.name;
-      routeSelect.appendChild(opt);
-    });
-
     carSelect.innerHTML = "";
     for (const carName in VEHICLE_GARAGE) {
       const opt = document.createElement("option");
@@ -74,11 +67,62 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 3. Generate Trip Storyboard
   btnGenerate.addEventListener("click", () => {
-    const routeIdx = parseInt(routeSelect.value);
-    currentRoute = HIGHWAY_ROUTES[routeIdx];
-    currentCar = VEHICLE_GARAGE[carSelect.value];
+    const origin = originInput.value.trim() || "Lahore";
+    const destination = destinationInput.value.trim() || "Islamabad";
     
-    if (!currentRoute || !currentCar) return;
+    const origUpper = origin.toUpperCase();
+    const destUpper = destination.toUpperCase();
+    currentCar = VEHICLE_GARAGE[carSelect.value];
+
+    if (!currentCar) return;
+
+    // Route matching
+    if ((origUpper.includes("LAHORE") || origUpper.includes("LHR")) && 
+        (destUpper.includes("ISLAMABAD") || destUpper.includes("ISB"))) {
+      currentRoute = HIGHWAY_ROUTES[0];
+    } else if ((origUpper.includes("MULTAN") || origUpper.includes("MUX")) && 
+               (destUpper.includes("SUKKUR") || destUpper.includes("SKZ"))) {
+      currentRoute = HIGHWAY_ROUTES[1];
+    } else {
+      // Dynamic simulated route calculations
+      const hashVal = origin.length + destination.length;
+      const distanceKm = Math.min(Math.max((hashVal * 18) + 120, 150), 650);
+      const etaHours = parseFloat((distanceKm / 82).toFixed(1));
+      const tollTax = Math.round(distanceKm * 2.8);
+      
+      const checkpoints = [
+        `${origin} Exit Toll Plaza`,
+        "Midway Highway Service Area",
+        `${destination} Entrance Junction`
+      ];
+      
+      let scenicPlaces = [
+        { name: `${destination} City Gate point`, detail: "Historic landmark photos", detourMins: 10 },
+        { name: "Local Highway Viewpoint", detail: "Scenic roadside photography", detourMins: 15 }
+      ];
+      
+      if (destUpper.includes("NARAN") || destUpper.includes("HUNZA") || destUpper.includes("SWAT") || destUpper.includes("GILGIT")) {
+        scenicPlaces = [
+          { name: "Salt Range Viewpoint", detail: "Mountain photography", detourMins: 15 },
+          { name: "River Bank Stopover", detail: "Scenic fresh water views", detourMins: 20 },
+          { name: "Mountain Pass Peak Point", detail: "Cold altitude visual scan stop", detourMins: 30 }
+        ];
+      } else if (destUpper.includes("KARACHI") || destUpper.includes("SINDH") || destUpper.includes("HYDERABAD")) {
+        scenicPlaces = [
+          { name: "Keenjhar Lake detour", detail: "Historic tourist lake boat stop", detourMins: 25 },
+          { name: "Sufi Shrine Viewpoint", detail: "Cultural architecture sight", detourMins: 20 }
+        ];
+      }
+
+      currentRoute = {
+        name: `${origin} to ${destination}`,
+        distanceKm: distanceKm,
+        etaHours: etaHours,
+        tollTax: tollTax,
+        checkpoints: checkpoints,
+        scenicPlaces: scenicPlaces
+      };
+    }
 
     triggerHaptic("success");
     baseEtaHours = currentRoute.etaHours;

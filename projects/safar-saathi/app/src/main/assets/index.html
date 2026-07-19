@@ -33,11 +33,15 @@
       <section class="wizard-panel glass-card" id="setup-wizard-panel">
         <h2 class="section-title">Plan Your Journey</h2>
         
-        <div class="input-field">
-          <label for="route-select">Select Highway Route</label>
-          <select id="route-select">
-            <!-- Populated from db.js -->
-          </select>
+        <div class="control-grid">
+          <div class="input-field">
+            <label for="origin-input">From (Origin)</label>
+            <input type="text" id="origin-input" placeholder="e.g. Lahore">
+          </div>
+          <div class="input-field">
+            <label for="destination-input">To (Destination)</label>
+            <input type="text" id="destination-input" placeholder="e.g. Islamabad">
+          </div>
         </div>
 
         <div class="input-field">
