@@ -1,0 +1,30 @@
+# Maintainer: Toufique Nizamanai <toufiquenizamani@domain.com>
+pkgname=setu
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Excise MTMIS vehicle card scanner and stolen license plates verifier."
+arch=('x86_64')
+url="https://github.com/toufiquenizamani-commits/cnic"
+license=('MIT')
+depends=('webkit2gtk' 'libgirepository')
+provides=('setu')
+conflicts=('setu')
+
+package() {
+    # 1. Install compiled binary
+    install -Dm755 "${srcdir}/../dist/setu" "${pkgdir}/usr/bin/setu"
+    
+    # 2. Install desktop shortcut launcher
+    install -d "${pkgdir}/usr/share/applications"
+    cat <<EOF > "${pkgdir}/usr/share/applications/setu.desktop"
+[Desktop Entry]
+Name=Setu Verify
+Comment=Excise MTMIS vehicle card scanner and stolen license plates verifier
+Exec=/usr/bin/setu
+Icon=utilities-system-monitor
+Terminal=false
+Type=Application
+Categories=Network;Utility;
+EOF
+    chmod 644 "${pkgdir}/usr/share/applications/setu.desktop"
+}

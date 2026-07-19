@@ -78,3 +78,128 @@ jobs:
         with:
           name: Safar-Saathi-Pro-APKs
           path: projects/safar-saathi/app/build/outputs/apk/**/*.apk
+
+      # Compile and Package Desktop Apps as Debian Installers (.deb)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pywebview fpdf pandas openpyxl
+
+      - name: Compile and Package Bijli Nazar (.deb)
+        run: |
+          cd projects/bijli-nazar
+          pyinstaller --clean --noconsole --onefile --add-data "app/src/main/assets:assets" --name="bijli-nazar" desktop/main.py
+          mkdir -p debian-pkg/DEBIAN debian-pkg/usr/bin debian-pkg/usr/share/applications
+          cp dist/bijli-nazar debian-pkg/usr/bin/
+          cat <<EOF > debian-pkg/DEBIAN/control
+          Package: bijli-nazar
+          Version: 1.0.0
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Depends: webkit2gtk
+          Maintainer: Toufique Nizamanai <toufiquenizamani@domain.com>
+          Description: Audit electricity bill slabs offline.
+          EOF
+          cat <<EOF > debian-pkg/usr/share/applications/bijli-nazar.desktop
+          [Desktop Entry]
+          Name=Bijli Nazar
+          Exec=/usr/bin/bijli-nazar
+          Icon=utilities-system-monitor
+          Terminal=false
+          Type=Application
+          Categories=Office;Utility;
+          EOF
+          dpkg-deb --build debian-pkg ../../bijli-nazar_1.0.0_amd64.deb
+
+      - name: Compile and Package Setu Verify (.deb)
+        run: |
+          cd projects/setu
+          pyinstaller --clean --noconsole --onefile --add-data "app/src/main/assets:assets" --name="setu" desktop/main.py
+          mkdir -p debian-pkg/DEBIAN debian-pkg/usr/bin debian-pkg/usr/share/applications
+          cp dist/setu debian-pkg/usr/bin/
+          cat <<EOF > debian-pkg/DEBIAN/control
+          Package: setu
+          Version: 1.0.0
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Depends: webkit2gtk
+          Maintainer: Toufique Nizamanai <toufiquenizamani@domain.com>
+          Description: Excise MTMIS vehicle card scanner.
+          EOF
+          cat <<EOF > debian-pkg/usr/share/applications/setu.desktop
+          [Desktop Entry]
+          Name=Setu Verify
+          Exec=/usr/bin/setu
+          Icon=utilities-system-monitor
+          Terminal=false
+          Type=Application
+          Categories=Network;Utility;
+          EOF
+          dpkg-deb --build debian-pkg ../../setu_1.0.0_amd64.deb
+
+      - name: Compile and Package Mandi Matrix (.deb)
+        run: |
+          cd projects/mandi-matrix
+          pyinstaller --clean --noconsole --onefile --add-data "app/src/main/assets:assets" --name="mandi-matrix" desktop/main.py
+          mkdir -p debian-pkg/DEBIAN debian-pkg/usr/bin debian-pkg/usr/share/applications
+          cp dist/mandi-matrix debian-pkg/usr/bin/
+          cat <<EOF > debian-pkg/DEBIAN/control
+          Package: mandi-matrix
+          Version: 1.0.0
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Depends: webkit2gtk
+          Maintainer: Toufique Nizamanai <toufiquenizamani@domain.com>
+          Description: Agricultural daily prices logs.
+          EOF
+          cat <<EOF > debian-pkg/usr/share/applications/mandi-matrix.desktop
+          [Desktop Entry]
+          Name=Mandi Matrix
+          Exec=/usr/bin/mandi-matrix
+          Icon=utilities-system-monitor
+          Terminal=false
+          Type=Application
+          Categories=Office;Utility;
+          EOF
+          dpkg-deb --build debian-pkg ../../mandi-matrix_1.0.0_amd64.deb
+
+      - name: Compile and Package Safar Saathi (.deb)
+        run: |
+          cd projects/safar-saathi
+          pyinstaller --clean --noconsole --onefile --add-data "app/src/main/assets:assets" --name="safar-saathi" desktop/main.py
+          mkdir -p debian-pkg/DEBIAN debian-pkg/usr/bin debian-pkg/usr/share/applications
+          cp dist/safar-saathi debian-pkg/usr/bin/
+          cat <<EOF > debian-pkg/DEBIAN/control
+          Package: safar-saathi
+          Version: 1.0.0
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Depends: webkit2gtk
+          Maintainer: Toufique Nizamanai <toufiquenizamani@domain.com>
+          Description: Highway trip navigator and drive HUD.
+          EOF
+          cat <<EOF > debian-pkg/usr/share/applications/safar-saathi.desktop
+          [Desktop Entry]
+          Name=Safar Saathi
+          Exec=/usr/bin/safar-saathi
+          Icon=utilities-system-monitor
+          Terminal=false
+          Type=Application
+          Categories=Maps;Utility;
+          EOF
+          dpkg-deb --build debian-pkg ../../safar-saathi_1.0.0_amd64.deb
+
+      - name: Upload Debian Installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-Debian-Installers
+          path: ./*.deb

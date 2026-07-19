@@ -1,0 +1,30 @@
+# Maintainer: Toufique Nizamanai <toufiquenizamani@domain.com>
+pkgname=safar-saathi
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Highway trip navigator, fuel optimizer, and drive HUD."
+arch=('x86_64')
+url="https://github.com/toufiquenizamani-commits/cnic"
+license=('MIT')
+depends=('webkit2gtk' 'libgirepository')
+provides=('safar-saathi')
+conflicts=('safar-saathi')
+
+package() {
+    # 1. Install compiled binary
+    install -Dm755 "${srcdir}/../dist/safar-saathi" "${pkgdir}/usr/bin/safar-saathi"
+    
+    # 2. Install desktop shortcut launcher
+    install -d "${pkgdir}/usr/share/applications"
+    cat <<EOF > "${pkgdir}/usr/share/applications/safar-saathi.desktop"
+[Desktop Entry]
+Name=Safar Saathi
+Comment=Highway trip navigator, fuel optimizer, and drive HUD
+Exec=/usr/bin/safar-saathi
+Icon=utilities-system-monitor
+Terminal=false
+Type=Application
+Categories=Maps;Utility;
+EOF
+    chmod 644 "${pkgdir}/usr/share/applications/safar-saathi.desktop"
+}

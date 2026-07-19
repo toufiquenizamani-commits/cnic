@@ -1,0 +1,30 @@
+# Maintainer: Toufique Nizamanai <toufiquenizamani@domain.com>
+pkgname=mandi-matrix
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Agricultural commodities wholesales price logs chalkboard."
+arch=('x86_64')
+url="https://github.com/toufiquenizamani-commits/cnic"
+license=('MIT')
+depends=('webkit2gtk' 'libgirepository')
+provides=('mandi-matrix')
+conflicts=('mandi-matrix')
+
+package() {
+    # 1. Install compiled binary
+    install -Dm755 "${srcdir}/../dist/mandi-matrix" "${pkgdir}/usr/bin/mandi-matrix"
+    
+    # 2. Install desktop shortcut launcher
+    install -d "${pkgdir}/usr/share/applications"
+    cat <<EOF > "${pkgdir}/usr/share/applications/mandi-matrix.desktop"
+[Desktop Entry]
+Name=Mandi Matrix
+Comment=Agricultural commodities wholesales price logs chalkboard
+Exec=/usr/bin/mandi-matrix
+Icon=utilities-system-monitor
+Terminal=false
+Type=Application
+Categories=Office;Utility;
+EOF
+    chmod 644 "${pkgdir}/usr/share/applications/mandi-matrix.desktop"
+}
