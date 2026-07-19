@@ -1,5 +1,10 @@
 # 🇵🇰 Pakistani Mobile Utility App Suite
 
+[![Build Status](https://github.com/toufiquenizamani-commits/cnic/actions/workflows/build.yml/badge.svg)](https://github.com/toufiquenizamani-commits/cnic/actions/workflows/build.yml)
+[![Android Min SDK](https://img.shields.io/badge/Android-21%2B-brightgreen.svg?style=flat-square)](https://developer.android.com)
+[![Privacy Status](https://img.shields.io/badge/Privacy-100%25%20Offline-orange.svg?style=flat-square)](#-privacy-first)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+
 A premium, offline-first, and privacy-focused suite of five mobile and desktop utility applications tailored to solve daily systemic friction points in Pakistan.
 
 All applications in this repository are compiled automatically on every push via the custom GitHub Actions CI/CD pipeline, outputting five distinct downloadable APK packages.
