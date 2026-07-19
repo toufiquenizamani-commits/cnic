@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Bijli Nazar - Electricity Watch</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <div class="app-container">
+    
+    <!-- Header Navigation -->
+    <header>
+      <div class="header-logo">
+        <span class="logo-icon">⚡</span>
+        <h1>Bijli Nazar</h1>
+      </div>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+          <svg id="sun-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg id="moon-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main visual dashboard dial: Protected Status Pacing Gauge -->
+    <section class="gauge-section">
+      <div class="glass-card gauge-card">
+        <div class="gauge-wrapper">
+          <svg class="gauge-svg" viewBox="0 0 120 120">
+            <circle class="gauge-track" cx="60" cy="60" r="50"></circle>
+            <circle id="gauge-fill" class="gauge-fill status-protected" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"></circle>
+          </svg>
+          <div class="gauge-content">
+            <span class="gauge-units" id="display-units">0</span>
+            <span class="gauge-label">Units Audited</span>
+          </div>
+        </div>
+        
+        <div class="gauge-status-label">
+          <span id="pacing-badge" class="badge badge-success">Protected Consumer</span>
+          <p id="pacing-desc" class="pacing-desc">Keep units below 200 to preserve subsidized slabs.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Workspace (Auditor / Calculator / AC Estimator) -->
+    <main class="workspace-area">
+      
+      <!-- Scan Bill Action Button -->
+      <div class="scan-action-container">
+        <button id="btn-camera-scan" class="btn btn-scan">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+          </svg>
+          <span>Scan Bill or Meter Dial</span>
+        </button>
+      </div>
+
+      <!-- Input Controls Card -->
+      <div class="glass-card controls-card">
+        <div class="control-grid">
+          <div class="input-field">
+            <label for="disco-select">Utility Provider (DISCO)</label>
+            <select id="disco-select">
+              <option value="LESCO">LESCO (Lahore)</option>
+              <option value="K-ELECTRIC">K-Electric (Karachi)</option>
+              <option value="IESCO">IESCO (Islamabad)</option>
+              <option value="MEPCO">MEPCO (Multan)</option>
+              <option value="FESCO">FESCO (Faisalabad)</option>
+              <option value="PESCO">PESCO (Peshawar)</option>
+              <option value="HESCO">HESCO (Hyderabad)</option>
+            </select>
+          </div>
+          <div class="input-field">
+            <label for="units-input">Units Consumed</label>
+            <input type="number" id="units-input" value="0" min="0" max="9999">
+          </div>
+        </div>
+      </div>
+
+      <!-- Itemized Forensic Audit Grid -->
+      <div class="glass-card audit-card" id="audit-results" style="display: none;">
+        <h3>Bill Audit Breakdown</h3>
+        
+        <div class="audit-list">
+          <div class="audit-row">
+            <span>Base Energy Cost</span>
+            <span class="audit-val" id="audit-base">Rs. 0.00</span>
+          </div>
+          <div class="audit-row">
+            <span>FCA / QTA Surcharges</span>
+            <span class="audit-val" id="audit-surcharges">Rs. 0.00</span>
+          </div>
+          <div class="audit-row">
+            <span>Government Taxes & Duties</span>
+            <span class="audit-val" id="audit-taxes">Rs. 0.00</span>
+          </div>
+          <div class="audit-row total-row">
+            <span>Calculated Bill Total</span>
+            <span class="audit-val" id="audit-total">Rs. 0.00</span>
+          </div>
+        </div>
+
+        <div class="discrepancy-panel" id="discrepancy-panel" style="display: none;">
+          <div class="discrepancy-header">
+            <span class="warning-icon">⚠️</span>
+            <h4>Discrepancy Found!</h4>
+          </div>
+          <p>Your actual bill doesn't match NEPRA approved tariffs. Tap below to draft a dispute letter.</p>
+          <button class="btn btn-dispute" id="btn-dispute-draft">Draft Dispute Template</button>
+        </div>
+      </div>
+
+      <!-- AC Slab Estimator Panel -->
+      <div class="glass-card estimator-card">
+        <h3>AC Consumption Estimator</h3>
+        <p class="section-subtitle">Simulate how running ACs impacts your slab limits.</p>
+        
+        <div class="slider-field">
+          <div class="slider-header">
+            <span>Number of ACs</span>
+            <span id="ac-count-val">1 AC</span>
+          </div>
+          <input type="range" id="ac-count-slider" min="0" max="5" value="1">
+        </div>
+
+        <div class="slider-field">
+          <div class="slider-header">
+            <span>Daily Usage Hours</span>
+            <span id="ac-hours-val">4 Hours</span>
+          </div>
+          <input type="range" id="ac-hours-slider" min="0" max="24" value="4">
+        </div>
+
+        <div class="estimation-result">
+          <div class="est-units">
+            <span id="est-units-added">0</span>
+            <p>Est. Monthly Units Added</p>
+          </div>
+          <div class="est-cost">
+            <span id="est-cost-added">Rs. 0</span>
+            <p>Est. Monthly Cost</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
