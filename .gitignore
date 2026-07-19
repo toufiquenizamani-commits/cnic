@@ -1,0 +1,12 @@
+# Gradle / Android build files
+.gradle/
+build/
+app/build/
+projects/*/app/build/
+.idea/
+*.iml
+*.log
+
+# Exclude all markdown plans/specifications from Git as requested
+*.md
+projects/**/*.md
