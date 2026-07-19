@@ -30,7 +30,7 @@ jobs:
       # Compile Debug and Release builds for all projects
       - name: Build Main App
         run: gradle assembleDebug assembleRelease
-        working-directory: ${{ github.workspace }}
+        working-directory: ${{ github.workspace }}/projects/pakcnic-decodex
 
       - name: Build Bijli Nazar
         run: gradle assembleDebug assembleRelease
@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PakCNIC-Decodex-APKs
-          path: app/build/outputs/apk/**/*.apk
+          path: projects/pakcnic-decodex/app/build/outputs/apk/**/*.apk
 
       - name: Upload Bijli Nazar APKs
         uses: actions/upload-artifact@v4
