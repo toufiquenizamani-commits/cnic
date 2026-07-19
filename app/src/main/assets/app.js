@@ -134,69 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, duration + 500);
   }
 
-  // 2. Confetti Particle Canvas Animation Loop (Lightweight, pure canvas)
-  const confettiCanvas = document.getElementById("confetti-canvas");
-  const ctx = confettiCanvas.getContext("2d");
-  let confettiParticles = [];
-  let confettiActive = false;
-
-  function resizeConfetti() {
-    confettiCanvas.width = window.innerWidth;
-    confettiCanvas.height = window.innerHeight;
-  }
-  window.addEventListener("resize", resizeConfetti);
-  resizeConfetti();
-
-  function fireConfetti() {
-    confettiCanvas.style.display = "block";
-    const colors = ["#00e676", "#00b0ff", "#ffd54f", "#ff4081", "#e8f5e9"];
-    
-    // Build particle array
-    for (let i = 0; i < 40; i++) {
-      confettiParticles.push({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2 - 50,
-        vx: (Math.random() - 0.5) * 12,
-        vy: (Math.random() - 0.5) * 12 - 4,
-        size: Math.random() * 5 + 3,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        life: 1.0,
-        decay: Math.random() * 0.02 + 0.015
-      });
-    }
-
-    if (!confettiActive) {
-      confettiActive = true;
-      animateConfetti();
-    }
-  }
-
-  function animateConfetti() {
-    if (confettiParticles.length === 0) {
-      confettiCanvas.style.display = "none";
-      confettiActive = false;
-      return;
-    }
-    
-    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    
-    confettiParticles = confettiParticles.filter(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.25; // Simple gravity factor
-      p.life -= p.decay;
-
-      if (p.life > 0) {
-        ctx.globalAlpha = p.life;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
-        return true;
-      }
-      return false;
-    });
-
-    requestAnimationFrame(animateConfetti);
-  }
+  // 2. Confetti Particle Canvas Animation Loop removed to keep visual style professional
 
   // 3. Double-Tap Gesture for Card Rotation (CNIC Mode Back side)
   let tapTimer = null;
@@ -583,9 +521,9 @@ document.addEventListener("DOMContentLoaded", () => {
     inspectorHudWrapper.classList.add("active");
     copyTools.style.display = "flex";
 
-    // Play native haptic trigger + Confetti particles
+    // Play native haptic trigger + Laser scan
     if (window.NativeBridge) window.NativeBridge.haptic("success");
-    fireConfetti();
+    triggerLaserScan();
     showToast("CNIC successfully decoded!");
 
     saveToHistory(decoded.district, decoded.province, gender);
@@ -666,9 +604,9 @@ document.addEventListener("DOMContentLoaded", () => {
     inspectorHudWrapper.classList.remove("active");
     copyTools.style.display = "flex";
 
-    // Play native haptic trigger + Confetti particles
+    // Play native haptic trigger + Laser scan
     if (window.NativeBridge) window.NativeBridge.haptic("success");
-    fireConfetti();
+    triggerLaserScan();
     showToast(`Operator resolved as ${operator.carrier}`);
   }
 
@@ -835,6 +773,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnClearHistory.style.display = "block";
     history.forEach(item => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "history-item-wrapper";
+
+      const deleteBg = document.createElement("div");
+      deleteBg.className = "history-delete-bg";
+      deleteBg.innerHTML = "<span>🗑️</span>";
+      wrapper.appendChild(deleteBg);
+
       const row = document.createElement("div");
       row.className = "history-item";
       row.innerHTML = `
@@ -844,7 +790,9 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <span class="history-badge-gender ${item.gender === "Male" ? "badge-male" : "badge-female"}">${item.gender}</span>
       `;
-      historyContainer.appendChild(row);
+      wrapper.appendChild(row);
+      historyContainer.appendChild(wrapper);
+      
       setupHistorySwipe(row, item.id);
     });
   }
@@ -892,4 +840,17 @@ document.addEventListener("DOMContentLoaded", () => {
   setupHoverHighlight("card-district", ["i-dist", "i-sub"]);
   setupHoverHighlight("card-gender", ["i-gen"]);
   setupHoverHighlight("card-family", ["i-fam"]);
+
+  // Explicit Card Flip Button Click handler
+  const flipCardBtn = document.getElementById("flip-card-btn");
+  if (flipCardBtn) {
+    flipCardBtn.addEventListener("click", () => {
+      if (activeMode === "MOBILE") {
+        digitalCard.classList.toggle("flipped");
+      } else {
+        toggleCNICBack();
+      }
+      if (window.NativeBridge) window.NativeBridge.haptic("light");
+    });
+  }
 });

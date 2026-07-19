@@ -43,6 +43,16 @@ public class MainActivity extends AppCompatActivity {
         // Force hardware rendering acceleration for smooth visual transitions
         mWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         
+        // Enable Google Safe Browsing protection natively if supported on Android Oreo+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            WebView.startSafeBrowsing(this, new android.webkit.ValueCallback<Boolean>() {
+                @Override
+                public void onReceiveValue(Boolean success) {
+                    android.util.Log.d("CNICDecodex_Native", "Safe Browsing initialized: " + success);
+                }
+            });
+        }
+        
         mWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(android.webkit.ConsoleMessage consoleMessage) {
