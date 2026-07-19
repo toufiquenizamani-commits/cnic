@@ -1178,3 +1178,81 @@ header {
   40%, 80% { transform: translateX(6px); }
 }
 
+/* Drag Handles for Drawers dismissal */
+.drawer-handle {
+  width: 36px;
+  height: 5px;
+  background-color: var(--border-subtle);
+  border-radius: 3px;
+  margin: 10px auto 4px auto;
+  flex-shrink: 0;
+  cursor: grab;
+}
+
+.drawer-handle:active {
+  cursor: grabbing;
+}
+
+/* Laser-Etched Security micro-texture for ID mockup card */
+.card-front::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  border-radius: 14px;
+}
+
+/* Conic Guilloche watermark engraving overlays */
+.card-flag-overlay {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  pointer-events: none;
+  opacity: 0.8;
+  width: 140px;
+  height: 140px;
+  background:
+    conic-gradient(from 0deg, transparent 0deg 10deg, rgba(0, 230, 118, 0.03) 10deg 12deg, transparent 12deg 22deg),
+    conic-gradient(from 15deg, transparent 0deg 8deg, rgba(0, 230, 118, 0.02) 8deg 9deg, transparent 9deg 20deg);
+  background-size: 100% 100%;
+  border-radius: 50%;
+}
+
+/* Dynamic light-sweep on card gold chip */
+@keyframes chipSweep {
+  0%   { background-position: -150% 0; }
+  100% { background-position: 250% 0; }
+}
+
+.card-chip.flipping {
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.7) 45%,
+    transparent 70%
+  ) !important;
+  background-size: 250% 100% !important;
+  animation: chipSweep 0.65s ease-out;
+}
+
+/* Light Theme Contrast parity overrides */
+.light-theme .toast {
+  background: rgba(255, 255, 255, 0.95);
+  color: #122118;
+  border-color: rgba(0, 105, 92, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.light-theme .drawer-handle {
+  background-color: rgba(0, 105, 92, 0.12);
+}
+
+

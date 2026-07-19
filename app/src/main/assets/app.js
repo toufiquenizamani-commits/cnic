@@ -263,6 +263,79 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Swipe-to-dismiss gestures for drawers
+  function makeSwipeDismissableBottom(drawerOverlay) {
+    const container = drawerOverlay.querySelector(".drawer-container");
+    const handle = drawerOverlay.querySelector(".drawer-handle");
+    if (!handle || !container) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let dragging = false;
+
+    handle.addEventListener("touchstart", (e) => {
+      startY = e.touches[0].clientY;
+      dragging = true;
+      container.style.transition = "none";
+    }, { passive: true });
+
+    handle.addEventListener("touchmove", (e) => {
+      if (!dragging) return;
+      currentY = e.touches[0].clientY - startY;
+      if (currentY > 0) {
+        container.style.transform = `translateY(${currentY}px)`;
+      }
+    }, { passive: true });
+
+    handle.addEventListener("touchend", () => {
+      dragging = false;
+      container.style.transition = "";
+      if (currentY > 100) {
+        drawerOverlay.classList.remove("open");
+      }
+      container.style.transform = "";
+      currentY = 0;
+    });
+  }
+
+  function makeSwipeDismissableLeft(drawerOverlay) {
+    const container = drawerOverlay.querySelector(".drawer-container");
+    const handle = drawerOverlay.querySelector(".drawer-handle");
+    if (!handle || !container) return;
+
+    let startX = 0;
+    let currentX = 0;
+    let dragging = false;
+
+    handle.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+      dragging = true;
+      container.style.transition = "none";
+    }, { passive: true });
+
+    handle.addEventListener("touchmove", (e) => {
+      if (!dragging) return;
+      currentX = e.touches[0].clientX - startX;
+      if (currentX < 0) {
+        container.style.transform = `translateX(${currentX}px)`;
+      }
+    }, { passive: true });
+
+    handle.addEventListener("touchend", () => {
+      dragging = false;
+      container.style.transition = "";
+      if (currentX < -80) {
+        drawerOverlay.classList.remove("open");
+      }
+      container.style.transform = "";
+      currentX = 0;
+    });
+  }
+
+  makeSwipeDismissableLeft(drawerHistory);
+  makeSwipeDismissableBottom(drawerUtilities);
+
+
   // 6. Utilities Drawer Internal Tabs
   tabSms.addEventListener("click", () => {
     tabSms.classList.add("active");
@@ -525,7 +598,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // 3D Flip card to reveal SIM back view
     document.getElementById("sim-back-content").style.display = "block";
     document.getElementById("cnic-back-content").style.display = "none";
-    digitalCard.classList.add("flipped");
+    
+    if (!digitalCard.classList.contains("flipped")) {
+      digitalCard.classList.add("flipped");
+      // Trigger gold chip sweep light reflection
+      const chips = document.querySelectorAll(".card-chip");
+      chips.forEach(c => {
+        c.classList.add("flipping");
+        setTimeout(() => c.classList.remove("flipping"), 650);
+      });
+    }
+    
     simMockNumber.textContent = mobile || "0300-0000000";
 
     if (raw.length < 11) {
