@@ -72,8 +72,19 @@ class DesktopAPI:
             return {"status": "error", "message": str(e)}
 
 
+def get_asset_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base_path, relative_path)
+
+
 def main():
-    assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../app/src/main/assets"))
+    assets_dir = get_asset_path("assets")
+    if not os.path.exists(assets_dir):
+        assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../app/src/main/assets"))
     index_file = os.path.join(assets_dir, "index.html")
 
     if not os.path.exists(index_file):

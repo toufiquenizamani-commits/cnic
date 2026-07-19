@@ -10,3 +10,9 @@ projects/*/app/build/
 # Exclude all markdown plans/specifications from Git as requested
 *.md
 projects/**/*.md
+
+# Python Build / Compiler environments
+build_env/
+**/dist/
+**/build/
+**/*.spec
