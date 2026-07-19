@@ -1,62 +1,194 @@
 // PakCNIC Decodex App Script Engine
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Input & Visual HUD Elements
+  // Navigation & Drawer Elements
+  const toggleHistory = document.getElementById("toggle-history");
+  const toggleUtilities = document.getElementById("toggle-utilities");
+  const drawerHistory = document.getElementById("drawer-history");
+  const drawerUtilities = document.getElementById("drawer-utilities");
+  const drawerCloseBtns = document.querySelectorAll(".drawer-close-btn");
+
+  // Utilities Tabs
+  const tabSms = document.getElementById("tab-sms");
+  const tabPrefix = document.getElementById("tab-prefix");
+  const panelSms = document.getElementById("panel-sms");
+  const panelPrefix = document.getElementById("panel-prefix");
+
+  // Input & Progress
   const cnicInput = document.getElementById("cnic-input");
   const digitCounter = document.getElementById("digit-counter");
   const progressBar = document.getElementById("progress-bar");
   const validationStatus = document.getElementById("validation-status");
   const copyTools = document.getElementById("copy-tools");
+  const inspectorHudWrapper = document.getElementById("inspector-hud-wrapper");
   const digitInspector = document.getElementById("digit-inspector");
 
-  // Output Elements
+  // Visual Mockup Card & Rotator
+  const digitalCard = document.getElementById("digital-card");
+  const cardMockNumber = document.getElementById("card-mock-number");
+  const cardMockGender = document.getElementById("card-mock-gender");
+  const cardMockDistrict = document.getElementById("card-mock-district");
+  const simMockCarrier = document.getElementById("sim-mock-carrier");
+  const simMockNumber = document.getElementById("sim-mock-number");
+  const simMockOperator = document.getElementById("sim-mock-operator");
+
+  // Output Grids
   const resultsWrapper = document.getElementById("results-wrapper");
+  const cnicResultsGrid = document.getElementById("cnic-results-grid");
+  const mobileResultsGrid = document.getElementById("mobile-results-grid");
+
+  // CNIC Output Spans
   const valProvince = document.getElementById("val-province");
   const valDivision = document.getElementById("val-division");
   const valDistrict = document.getElementById("val-district");
   const valGender = document.getElementById("val-gender");
   const valFamily = document.getElementById("val-family");
 
-  // Mockup Card Overlays
-  const cardMockNumber = document.getElementById("card-mock-number");
-  const cardMockGender = document.getElementById("card-mock-gender");
-  const cardMockDistrict = document.getElementById("card-mock-district");
+  // Mobile Output Spans
+  const valMobileCarrier = document.getElementById("val-mobile-carrier");
+  const valMobilePrefix = document.getElementById("val-mobile-prefix");
 
-  // Interactive Inspector Spans
-  const inspectorProv = document.getElementById("i-prov");
-  const inspectorDiv = document.getElementById("i-div");
-  const inspectorDist = document.getElementById("i-dist");
-  const inspectorFam = document.getElementById("i-fam");
-  const inspectorGen = document.getElementById("i-gen");
+  // Web OSINT Buttons
+  const btnOsintCnic = document.getElementById("btn-osint-cnic");
+  const btnOsintWhatsapp = document.getElementById("btn-osint-whatsapp");
+  const btnOsintSpam = document.getElementById("btn-osint-spam");
 
-  // SMS buttons
-  const sms8300 = document.getElementById("sms-8300");
-  const sms668 = document.getElementById("sms-668");
-  const sms8009 = document.getElementById("sms-8009");
-  const sms7000 = document.getElementById("sms-7000");
-
-  // Interactive UI buttons
+  // General Buttons
   const themeToggle = document.getElementById("theme-toggle");
   const sunIcon = document.getElementById("sun-icon");
   const moonIcon = document.getElementById("moon-icon");
   const btnShare = document.getElementById("btn-share-details");
   const btnCopyFormatted = document.getElementById("btn-copy-formatted");
   const btnCopyRaw = document.getElementById("btn-copy-raw");
-  
-  // History Drawer Elements
+
+  // History Elements
   const historyContainer = document.getElementById("history-container");
   const btnClearHistory = document.getElementById("btn-clear-history");
 
-  let currentDecodedText = ""; // To store current data for sharing
+  let currentDecodedText = "";
+  let activeMode = "CNIC"; // "CNIC" or "MOBILE"
 
-  // 1. Theme Configuration Logic
+  // Telecom operator prefixes database mapping
+  const OPERATOR_PREFIXES = [
+    { code: "0300", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0301", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0302", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0303", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0304", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0305", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0306", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0307", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0308", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0309", carrier: "Jazz", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0310", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0311", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0312", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0313", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0314", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0315", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0316", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0317", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0318", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0319", carrier: "Zong", styleClass: "sim-zong", glowClass: "glow-zong" },
+    { code: "0320", carrier: "Warid", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0321", carrier: "Warid", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0322", carrier: "Warid", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0323", carrier: "Warid", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0324", carrier: "Warid", styleClass: "sim-jazz", glowClass: "glow-jazz" },
+    { code: "0330", carrier: "Ufone", styleClass: "sim-ufone", glowClass: "glow-ufone" },
+    { code: "0331", carrier: "Ufone", styleClass: "sim-ufone", glowClass: "glow-ufone" },
+    { code: "0332", carrier: "Ufone", styleClass: "sim-ufone", glowClass: "glow-ufone" },
+    { code: "0333", carrier: "Ufone", styleClass: "sim-ufone", glowClass: "glow-ufone" },
+    { code: "0334", carrier: "Ufone", styleClass: "sim-ufone", glowClass: "glow-ufone" },
+    { code: "0335", carrier: "Ufone", styleClass: "sim-ufone", glowClass: "glow-ufone" },
+    { code: "0336", carrier: "Ufone", styleClass: "sim-ufone", glowClass: "glow-ufone" },
+    { code: "0337", carrier: "Ufone", styleClass: "sim-ufone", glowClass: "glow-ufone" },
+    { code: "0340", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0341", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0342", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0343", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0344", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0345", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0346", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0347", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0348", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0349", carrier: "Telenor", styleClass: "sim-telenor", glowClass: "glow-telenor" },
+    { code: "0355", carrier: "SCOM", styleClass: "sim-scom", glowClass: "glow-scom" }
+  ];
+
+  // 1. Drawer Opening & Closing Logic
+  toggleHistory.addEventListener("click", () => drawerHistory.classList.add("open"));
+  toggleUtilities.addEventListener("click", () => {
+    drawerUtilities.classList.add("open");
+    populatePrefixList(); // Dynamically render search list
+  });
+
+  drawerCloseBtns.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const targetId = btn.getAttribute("data-close");
+      document.getElementById(targetId).classList.remove("open");
+    });
+  });
+
+  // Close drawer if clicking backdrop
+  document.querySelectorAll(".drawer-overlay").forEach(overlay => {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) overlay.classList.remove("open");
+    });
+  });
+
+  // 2. Utilities Drawer Internal Tabs
+  tabSms.addEventListener("click", () => {
+    tabSms.classList.add("active");
+    tabPrefix.classList.remove("active");
+    panelSms.classList.add("active");
+    panelPrefix.classList.remove("active");
+  });
+
+  tabPrefix.addEventListener("click", () => {
+    tabPrefix.classList.add("active");
+    tabSms.classList.remove("active");
+    panelPrefix.classList.add("active");
+    panelSms.classList.remove("active");
+  });
+
+  // Search filter for operator prefixes
+  document.getElementById("prefix-search").addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase();
+    populatePrefixList(query);
+  });
+
+  function populatePrefixList(filter = "") {
+    const list = document.getElementById("prefix-list-container");
+    list.innerHTML = "";
+    
+    const filtered = OPERATOR_PREFIXES.filter(p => 
+      p.code.includes(filter) || p.carrier.toLowerCase().includes(filter)
+    );
+
+    if (filtered.length === 0) {
+      list.innerHTML = '<div style="font-size: 0.75rem; text-align: center; padding: 8px;">No prefixes match search.</div>';
+      return;
+    }
+
+    filtered.forEach(p => {
+      const row = document.createElement("div");
+      row.className = "prefix-item-row";
+      row.innerHTML = `
+        <span class="prefix-code-badge">${p.code}</span>
+        <span class="prefix-carrier-badge carrier-${p.carrier.toLowerCase()}">${p.carrier}</span>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  // 3. Theme Toggle Setup
   const savedTheme = localStorage.getItem("app-theme") || "dark";
   setTheme(savedTheme);
 
   themeToggle.addEventListener("click", () => {
     const isDark = document.body.classList.contains("dark-theme");
-    const nextTheme = isDark ? "light" : "dark";
-    setTheme(nextTheme);
+    setTheme(isDark ? "light" : "dark");
   });
 
   function setTheme(theme) {
@@ -74,127 +206,113 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("app-theme", theme);
   }
 
-  // 2. Format Masking & Real-time Visual updates
+  // 4. Input Formatting and Auto-Detection
   cnicInput.addEventListener("input", (e) => {
-    let value = e.target.value.replace(/\D/g, ""); // Strip non-digits
+    let raw = e.target.value.replace(/\D/g, ""); // Strip non-digits
     
-    // Auto-mask hyphens
-    let formattedValue = "";
-    if (value.length > 0) {
-      formattedValue += value.substring(0, 5);
-    }
-    if (value.length > 5) {
-      formattedValue += "-" + value.substring(5, 12);
-    }
-    if (value.length > 12) {
-      formattedValue += "-" + value.substring(12, 13);
+    // Auto-detect mode based on leading prefix
+    if (raw.startsWith("0")) {
+      activeMode = "MOBILE";
+    } else {
+      activeMode = "CNIC";
     }
 
-    cnicInput.value = formattedValue;
-    
-    // Character Progress Updates
-    const digitLen = value.length;
-    digitCounter.textContent = `${digitLen} / 13 Digits`;
-    
-    const percentage = Math.min((digitLen / 13) * 100, 100);
-    progressBar.style.width = `${percentage}%`;
-
-    // Process & Decode
-    processCNIC(formattedValue);
+    let formatted = "";
+    if (activeMode === "MOBILE") {
+      // Mobile Format: XXXX-YYYYYYY
+      if (raw.length > 0) {
+        formatted += raw.substring(0, 4);
+      }
+      if (raw.length > 4) {
+        formatted += "-" + raw.substring(4, 11);
+      }
+      cnicInput.value = formatted;
+      digitCounter.textContent = `${raw.length} / 11 Digits`;
+      
+      const percentage = Math.min((raw.length / 11) * 100, 100);
+      progressBar.style.width = `${percentage}%`;
+      
+      processMobile(formatted);
+    } else {
+      // CNIC Format: XXXXX-YYYYYYY-Z
+      if (raw.length > 0) {
+        formatted += raw.substring(0, 5);
+      }
+      if (raw.length > 5) {
+        formatted += "-" + raw.substring(5, 12);
+      }
+      if (raw.length > 12) {
+        formatted += "-" + raw.substring(12, 13);
+      }
+      cnicInput.value = formatted;
+      digitCounter.textContent = `${raw.length} / 13 Digits`;
+      
+      const percentage = Math.min((raw.length / 13) * 100, 100);
+      progressBar.style.width = `${percentage}%`;
+      
+      processCNIC(formatted);
+    }
   });
 
+  // 5. CNIC Mode Processing
   function processCNIC(cnic) {
-    const rawCnic = cnic.replace(/\D/g, "");
+    const raw = cnic.replace(/\D/g, "");
 
-    // Live Mock Card update
+    // Rotate visual mockup to front if flipped
+    digitalCard.classList.remove("flipped");
     cardMockNumber.textContent = cnic || "00000-0000000-0";
     
-    // Update structural breakdown display
-    updateDigitInspector(rawCnic);
+    updateDigitInspector(raw);
 
-    if (rawCnic.length < 13) {
-      setIncompleteState();
+    // Dynamic color class cleanup
+    clearGlowClasses();
+    digitalCard.classList.add("glow-cnic");
+
+    if (raw.length < 13) {
+      setIncompleteState("Enter complete 13-digit CNIC");
       return;
     }
 
-    if (rawCnic.length === 13) {
-      const isValidFormat = /^[0-9]{5}-[0-9]{7}-[0-9]{1}$/.test(cnic);
-      if (!isValidFormat) {
+    if (raw.length === 13) {
+      if (!/^[0-9]{5}-[0-9]{7}-[0-9]{1}$/.test(cnic)) {
         setInvalidState("Format validation failed.");
         return;
       }
 
-      const firstDigit = rawCnic.charAt(0);
+      const firstDigit = raw.charAt(0);
       if (firstDigit < "1" || firstDigit > "8") {
-        setInvalidState("Invalid province code prefix.");
+        setInvalidState("Invalid province prefix code.");
         return;
       }
 
-      // Successful Input - Parse details
-      decodeDetails(rawCnic);
+      decodeCNIC(raw);
     }
   }
 
-  function setIncompleteState() {
-    validationStatus.className = "validation-badge status-incomplete";
-    validationStatus.innerHTML = `
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-      </svg>
-      <span>Enter complete 13-digit CNIC</span>`;
+  function updateDigitInspector(raw) {
+    document.getElementById("i-prov").textContent = raw.charAt(0) || "X";
+    document.getElementById("i-div").textContent = raw.charAt(1) || "X";
+    document.getElementById("i-dist").textContent = raw.charAt(2) || "X";
     
-    resultsWrapper.classList.remove("visible");
-    digitInspector.classList.remove("active");
-    copyTools.style.display = "none";
-    
-    cardMockGender.textContent = "SELECT CARD";
-    cardMockDistrict.textContent = "PAKISTAN";
-  }
-
-  function setInvalidState(msg) {
-    validationStatus.className = "validation-badge status-invalid";
-    validationStatus.innerHTML = `
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <span>Invalid: ${msg}</span>`;
-    
-    resultsWrapper.classList.remove("visible");
-    digitInspector.classList.add("active");
-    copyTools.style.display = "none";
-    
-    cardMockGender.textContent = "INVALID";
-    cardMockDistrict.textContent = "INVALID";
-  }
-
-  function updateDigitInspector(rawCnic) {
-    inspectorProv.textContent = rawCnic.charAt(0) || "X";
-    inspectorDiv.textContent = rawCnic.charAt(1) || "X";
-    inspectorDist.textContent = rawCnic.charAt(2) || "X";
-    
-    const t1 = rawCnic.charAt(3) || "X";
-    const t2 = rawCnic.charAt(4) || "X";
+    const t1 = raw.charAt(3) || "X";
+    const t2 = raw.charAt(4) || "X";
     document.getElementById("i-sub").textContent = t1 + t2;
 
-    if (rawCnic.length > 5) {
-      inspectorFam.textContent = rawCnic.substring(5, Math.min(12, rawCnic.length));
-      if (rawCnic.length < 12) {
-        inspectorFam.textContent += "X".repeat(12 - rawCnic.length);
+    if (raw.length > 5) {
+      document.getElementById("i-fam").textContent = raw.substring(5, Math.min(12, raw.length));
+      if (raw.length < 12) {
+        document.getElementById("i-fam").textContent += "X".repeat(12 - raw.length);
       }
     } else {
-      inspectorFam.textContent = "XXXXXXX";
+      document.getElementById("i-fam").textContent = "XXXXXXX";
     }
 
-    if (rawCnic.length > 12) {
-      inspectorGen.textContent = rawCnic.charAt(12);
-    } else {
-      inspectorGen.textContent = "X";
-    }
+    document.getElementById("i-gen").textContent = raw.charAt(12) || "X";
   }
 
-  function decodeDetails(rawCnic) {
-    const prefix3 = rawCnic.substring(0, 3);
-    const firstDigit = rawCnic.charAt(0);
+  function decodeCNIC(raw) {
+    const prefix3 = raw.substring(0, 3);
+    const firstDigit = raw.charAt(0);
     let decoded = null;
 
     if (CNIC_DATABASE && CNIC_DATABASE[prefix3]) {
@@ -206,7 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "3": "Punjab",
         "4": "Sindh",
         "5": "Balochistan",
-        "6": "Islamabad Capital Territory",
+        "6": "Islamabad Capital",
         "7": "Gilgit-Baltistan",
         "8": "Azad Kashmir"
       };
@@ -217,24 +335,24 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
-    // Gender check
-    const lastDigit = parseInt(rawCnic.charAt(12));
-    const isMale = lastDigit % 2 !== 0;
-    const genderStr = isMale ? "Male" : "Female";
-    const familyUnitNumber = rawCnic.substring(5, 12);
+    const lastDigit = parseInt(raw.charAt(12));
+    const gender = lastDigit % 2 !== 0 ? "Male" : "Female";
+    const familyId = raw.substring(5, 12);
 
-    // Update Output Cards
+    // Update CNIC view outputs
     valProvince.textContent = decoded.province;
     valDivision.textContent = decoded.division;
     valDistrict.textContent = decoded.district;
-    valGender.textContent = genderStr;
-    valFamily.textContent = familyUnitNumber;
+    valGender.textContent = gender;
+    valFamily.textContent = familyId;
 
     // Update Mockup Card Overlay
-    cardMockGender.textContent = genderStr;
+    cardMockGender.textContent = gender;
     cardMockDistrict.textContent = decoded.district;
 
-    // Active status label
+    // Set up OSINT Google Search (searching PDF/XLS/Doc indexes for matching names)
+    btnOsintCnic.href = `https://www.google.com/search?q=%22${raw.substring(0,5)}-${raw.substring(5,12)}-${raw.charAt(12)}%22+filetype%3Apdf+OR+filetype%3Axls+OR+filetype%3Adoc`;
+
     validationStatus.className = "validation-badge status-valid";
     validationStatus.innerHTML = `
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -242,50 +360,147 @@ document.addEventListener("DOMContentLoaded", () => {
       </svg>
       <span>Valid Pakistani Identity Structure</span>`;
 
-    // Dynamic sharing text compilation
-    currentDecodedText = `CNIC Decoded Insights:\nDistrict: ${decoded.district}\nDivision: ${decoded.division}\nProvince/Territory: ${decoded.province}\nGender: ${genderStr}`;
+    currentDecodedText = `CNIC Decoded Insights:\nDistrict: ${decoded.district}\nDivision: ${decoded.division}\nProvince/Territory: ${decoded.province}\nGender: ${gender}`;
 
-    // Reveal insights
-    resultsWrapper.classList.add("visible");
-    digitInspector.classList.add("active");
+    // Swap Grid views
+    cnicResultsGrid.style.display = "grid";
+    mobileResultsGrid.style.display = "none";
+    resultsWrapper.style.display = "flex";
+    inspectorHudWrapper.classList.add("active");
     copyTools.style.display = "flex";
 
-    // Set up native SMS intent links
-    sms8300.href = `sms:8300?body=${rawCnic}`;
-    sms668.href = `sms:668?body=${rawCnic}`;
-    sms8009.href = `sms:8009?body=${rawCnic}`;
-    sms7000.href = `sms:7000?body=${rawCnic}`;
+    // Play native haptic trigger
+    if (navigator.vibrate) navigator.vibrate(50);
 
-    // Physical Native Vibrate Feedback (50ms tap vibration)
-    if (navigator.vibrate) {
-      navigator.vibrate(50);
-    }
-
-    // Save search details to local scan history log
-    saveToHistory(decoded.district, decoded.province, genderStr);
+    saveToHistory(decoded.district, decoded.province, gender);
   }
 
-  // 3. Clipboard Handling
-  const setupClipboardCopy = (element, getCnicString) => {
-    element.addEventListener("click", () => {
-      const textToCopy = getCnicString();
-      if (!textToCopy) return;
+  // 6. Mobile Mode Processing
+  function processMobile(mobile) {
+    const raw = mobile.replace(/\D/g, "");
 
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        // Change text values dynamically inside the button to show success feedback
-        const span = element.querySelector("span");
-        const originalText = span.textContent;
+    // 3D Flip card to reveal SIM back view
+    digitalCard.classList.add("flipped");
+    simMockNumber.textContent = mobile || "0300-0000000";
+
+    if (raw.length < 11) {
+      setIncompleteState("Enter complete 11-digit mobile number");
+      return;
+    }
+
+    if (raw.length === 11) {
+      const prefix4 = raw.substring(0, 4);
+      const match = OPERATOR_PREFIXES.find(p => p.code === prefix4);
+
+      if (!match) {
+        setInvalidState("Unknown mobile network prefix.");
+        return;
+      }
+
+      decodeMobile(raw, match);
+    }
+  }
+
+  function decodeMobile(raw, operator) {
+    // Clear and set operator branding styling classes
+    clearGlowClasses();
+    clearSimBrandingClasses();
+    digitalCard.classList.add(operator.styleClass, operator.glowClass);
+
+    // Update SIM mock card labels
+    simMockCarrier.textContent = operator.carrier;
+    simMockOperator.textContent = operator.carrier;
+
+    // Update Output spans
+    valMobileCarrier.textContent = operator.carrier;
+    valMobilePrefix.textContent = operator.code;
+
+    // Configure Mobile OSINT search buttons
+    // WhatsApp direct profile lookup (replaces 03 with 923)
+    const waNumber = "92" + raw.substring(1);
+    btnOsintWhatsapp.href = `https://wa.me/${waNumber}`;
+
+    // Google query for spam lists
+    btnOsintSpam.href = `https://www.google.com/search?q=%22${raw}%22+OR+%22%2B92+${raw.substring(1,4)}+${raw.substring(4)}%22+spam+fraud+caller+reports`;
+
+    validationStatus.className = "validation-badge status-valid";
+    validationStatus.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      <span>Valid Pakistani Mobile Network Prefix</span>`;
+
+    currentDecodedText = `Mobile Inspector Decoded:\nOperator: ${operator.carrier}\nPrefix: ${operator.code}\nNumber: ${raw}`;
+
+    // Swap Grid views
+    cnicResultsGrid.style.display = "none";
+    mobileResultsGrid.style.display = "grid";
+    resultsWrapper.style.display = "flex";
+    inspectorHudWrapper.classList.remove("active");
+    copyTools.style.display = "flex";
+
+    // Play native haptic trigger
+    if (navigator.vibrate) navigator.vibrate(50);
+  }
+
+  // Helper cleanup functions for brand styling
+  function clearGlowClasses() {
+    digitalCard.classList.remove("glow-cnic", "glow-jazz", "glow-zong", "glow-telenor", "glow-ufone", "glow-scom");
+  }
+
+  function clearSimBrandingClasses() {
+    digitalCard.classList.remove("sim-jazz", "sim-zong", "sim-telenor", "sim-ufone", "sim-scom");
+  }
+
+  // State modifiers
+  function setIncompleteState(msg) {
+    validationStatus.className = "validation-badge status-incomplete";
+    validationStatus.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+      <span>${msg}</span>`;
+
+    resultsWrapper.style.display = "none";
+    inspectorHudWrapper.classList.remove("active");
+    copyTools.style.display = "none";
+
+    cardMockGender.textContent = "AWAITING INPUT";
+    cardMockDistrict.textContent = "PAKISTAN";
+    simMockCarrier.textContent = "CARRIER";
+    simMockOperator.textContent = "RESOLVING...";
+  }
+
+  function setInvalidState(msg) {
+    validationStatus.className = "validation-badge status-invalid";
+    validationStatus.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>Invalid: ${msg}</span>`;
+
+    resultsWrapper.style.display = "none";
+    inspectorHudWrapper.classList.remove("active");
+    copyTools.style.display = "none";
+
+    cardMockGender.textContent = "INVALID";
+    cardMockDistrict.textContent = "INVALID";
+    simMockCarrier.textContent = "INVALID";
+    simMockOperator.textContent = "INVALID PREFIX";
+  }
+
+  // 7. Clipboard and Sharing
+  const setupClipboardCopy = (btn, getValue) => {
+    btn.addEventListener("click", () => {
+      const val = getValue();
+      if (!val) return;
+
+      navigator.clipboard.writeText(val).then(() => {
+        const span = btn.querySelector("span");
+        const orig = span.textContent;
         span.textContent = "Copied!";
-        element.style.borderColor = "var(--success-color)";
-        
-        if (navigator.vibrate) {
-          navigator.vibrate(25);
-        }
-
-        setTimeout(() => {
-          span.textContent = originalText;
-          element.style.borderColor = "";
-        }, 1200);
+        if (navigator.vibrate) navigator.vibrate(25);
+        setTimeout(() => span.textContent = orig, 1200);
       });
     });
   };
@@ -293,36 +508,27 @@ document.addEventListener("DOMContentLoaded", () => {
   setupClipboardCopy(btnCopyFormatted, () => cnicInput.value);
   setupClipboardCopy(btnCopyRaw, () => cnicInput.value.replace(/\D/g, ""));
 
-  // 4. Native Sharing Drawer (Web Share API)
   btnShare.addEventListener("click", () => {
     if (navigator.share) {
       navigator.share({
-        title: "PakCNIC Decodex Report",
+        title: "Decodex Report",
         text: currentDecodedText
-      }).catch(err => console.log("Sharing failed: ", err));
+      }).catch(err => console.log("Sharing error:", err));
     } else {
-      // Offline fallback: copy to clipboard
       navigator.clipboard.writeText(currentDecodedText).then(() => {
-        const btnSpan = btnShare.querySelector("span");
-        btnSpan.textContent = "Copied to clipboard!";
-        setTimeout(() => {
-          btnSpan.textContent = "Share Insights";
-        }, 1500);
+        const span = btnShare.querySelector("span");
+        span.textContent = "Copied to clipboard!";
+        setTimeout(() => span.textContent = "Share", 1500);
       });
     }
   });
 
-  // 5. Offline Scan History Storage
+  // 8. History Storage
   function saveToHistory(district, province, gender) {
     let history = JSON.parse(localStorage.getItem("scan-history")) || [];
-    
-    // Avoid redundant duplicates
-    const duplicate = history.some(item => 
-      item.district === district && item.province === province && item.gender === gender
-    );
-    if (duplicate) return;
+    const dup = history.some(h => h.district === district && h.province === province && h.gender === gender);
+    if (dup) return;
 
-    // Limit to last 5 records
     history.unshift({ district, province, gender, id: Date.now() });
     if (history.length > 5) history.pop();
 
@@ -335,23 +541,23 @@ document.addEventListener("DOMContentLoaded", () => {
     historyContainer.innerHTML = "";
 
     if (history.length === 0) {
-      historyContainer.innerHTML = '<div class="history-placeholder">No recent scans stored on this device.</div>';
+      historyContainer.innerHTML = '<div class="history-placeholder">No recent scans stored.</div>';
       btnClearHistory.style.display = "none";
       return;
     }
 
     btnClearHistory.style.display = "block";
     history.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "history-item";
-      div.innerHTML = `
+      const row = document.createElement("div");
+      row.className = "history-item";
+      row.innerHTML = `
         <div class="history-meta-loc">
           <span class="history-district-txt">${item.district}</span>
           <span class="history-province-txt">${item.province}</span>
         </div>
         <span class="history-badge-gender ${item.gender === "Male" ? "badge-male" : "badge-female"}">${item.gender}</span>
       `;
-      historyContainer.appendChild(div);
+      historyContainer.appendChild(row);
     });
   }
 
@@ -360,43 +566,37 @@ document.addEventListener("DOMContentLoaded", () => {
     renderHistory();
   });
 
-  // Initial render of storage history logs
   renderHistory();
 
-  // 6. Interactive visual inspector highlighting triggers
-  const setupHoverInspector = (cardId, highlights) => {
-    const element = document.getElementById(cardId);
-    if (!element) return;
+  // 9. Interactive Highlight Linking between grids and visual card
+  const setupHoverHighlight = (cardId, spans) => {
+    const cardEl = document.getElementById(cardId);
+    if (!cardEl) return;
 
-    element.addEventListener("touchstart", () => {
-      highlights.forEach(id => {
+    const applyHighlights = (add = true) => {
+      spans.forEach(id => {
         const span = document.getElementById(id);
         if (span) {
-          if (cardId.includes("prov")) span.classList.add("highlight-province");
-          if (cardId.includes("div")) span.classList.add("highlight-division");
-          if (cardId.includes("dist")) span.classList.add("highlight-district");
-          if (cardId.includes("fam")) span.classList.add("highlight-family");
-          if (cardId.includes("gen")) span.classList.add("highlight-gender");
+          const action = add ? "add" : "remove";
+          if (cardId.includes("province")) span.classList[action]("highlight-province");
+          if (cardId.includes("division")) span.classList[action]("highlight-division");
+          if (cardId.includes("district")) span.classList[action]("highlight-district");
+          if (cardId.includes("family")) span.classList[action]("highlight-family");
+          if (cardId.includes("gender")) span.classList[action]("highlight-gender");
         }
       });
-      element.classList.add("active-hover");
-    });
+      cardEl.classList[add ? "add" : "remove"]("active-glow");
+    };
 
-    element.addEventListener("touchend", () => {
-      highlights.forEach(id => {
-        const span = document.getElementById(id);
-        if (span) {
-          span.classList.remove("highlight-province", "highlight-division", "highlight-district", "highlight-family", "highlight-gender");
-        }
-      });
-      element.classList.remove("active-hover");
-    });
+    cardEl.addEventListener("touchstart", () => applyHighlights(true));
+    cardEl.addEventListener("touchend", () => applyHighlights(false));
+    cardEl.addEventListener("mouseenter", () => applyHighlights(true));
+    cardEl.addEventListener("mouseleave", () => applyHighlights(false));
   };
 
-  // Bind elements to visual Inspector
-  setupHoverInspector("card-province", ["i-prov"]);
-  setupHoverInspector("card-division", ["i-div"]);
-  setupHoverInspector("card-district", ["i-dist", "i-sub"]);
-  setupHoverInspector("card-gender", ["i-gen"]);
-  setupHoverInspector("card-family", ["i-fam"]);
+  setupHoverHighlight("card-province", ["i-prov"]);
+  setupHoverHighlight("card-division", ["i-div"]);
+  setupHoverHighlight("card-district", ["i-dist", "i-sub"]);
+  setupHoverHighlight("card-gender", ["i-gen"]);
+  setupHoverHighlight("card-family", ["i-fam"]);
 });

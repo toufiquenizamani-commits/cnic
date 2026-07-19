@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // Intercept SMS links and official external websites to load in native external applications
-                if (url.startsWith("sms:") || url.startsWith("tel:") || url.startsWith("mailto:") || url.startsWith("http://") || url.startsWith("https://")) {
+                // Intercept SMS, calls, mail, and WhatsApp profile links to launch in native external apps
+                if (url.startsWith("sms:") || url.startsWith("tel:") || url.startsWith("mailto:") || url.startsWith("https://wa.me") || url.startsWith("http://wa.me")) {
                     try {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                         startActivity(intent);
@@ -56,6 +56,11 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                } 
+                // Intercept web searches (Google OSINT) and render inside custom native In-App Web Inspector
+                else if (url.startsWith("http://") || url.startsWith("https://")) {
+                    showInAppBrowser(url);
+                    return true;
                 }
                 return false;
             }
@@ -64,6 +69,81 @@ public class MainActivity extends AppCompatActivity {
         // Load the main entry HTML from the local Android assets directory
         mWebView.loadUrl("file:///android_asset/index.html");
     }
+
+    /**
+     * Programmatically constructs and presents a fullscreen In-App Web Inspector sheet.
+     * This avoids context switching and keeps the user engaged within the application.
+     */
+    private void showInAppBrowser(String url) {
+        final android.app.Dialog dialog = new android.app.Dialog(this, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen);
+        
+        // Root container
+        android.widget.LinearLayout root = new android.widget.LinearLayout(this);
+        root.setOrientation(android.widget.LinearLayout.VERTICAL);
+        root.setBackgroundColor(android.graphics.Color.parseColor("#010b06")); // OLED midnight green background
+        
+        // Custom Toolbar Header
+        android.widget.LinearLayout toolbar = new android.widget.LinearLayout(this);
+        toolbar.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        toolbar.setBackgroundColor(android.graphics.Color.parseColor("#0c1e14")); // Surface panel green
+        toolbar.setPadding(36, 24, 36, 24);
+        toolbar.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        
+        // Web Inspector title text
+        android.widget.TextView title = new android.widget.TextView(this);
+        title.setText("Web Search Inspector");
+        title.setTextColor(android.graphics.Color.parseColor("#e8f5e9"));
+        title.setTextSize(18);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        
+        android.widget.LinearLayout.LayoutParams titleParams = new android.widget.LinearLayout.LayoutParams(
+            0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+        title.setLayoutParams(titleParams);
+        toolbar.addView(title);
+        
+        // Native close button on the right
+        android.widget.Button closeBtn = new android.widget.Button(this);
+        closeBtn.setText("Close");
+        closeBtn.setTextColor(android.graphics.Color.parseColor("#ff5252"));
+        closeBtn.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        closeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        toolbar.addView(closeBtn);
+        
+        root.addView(toolbar);
+        
+        // Embedded WebView content browser
+        WebView webView = new WebView(this);
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setSupportZoom(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+        });
+        
+        android.widget.LinearLayout.LayoutParams webViewParams = new android.widget.LinearLayout.LayoutParams(
+            android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 1.0f);
+        webView.setLayoutParams(webViewParams);
+        root.addView(webView);
+        
+        dialog.setContentView(root);
+        dialog.show();
+        
+        webView.loadUrl(url);
+    }
+
 
     @Override
     public void onBackPressed() {
