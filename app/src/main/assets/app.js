@@ -772,6 +772,52 @@ document.addEventListener("DOMContentLoaded", () => {
     renderHistory();
   }
 
+  function deleteFromHistory(id) {
+    let history = JSON.parse(localStorage.getItem("scan-history")) || [];
+    history = history.filter(item => item.id !== id);
+    localStorage.setItem("scan-history", JSON.stringify(history));
+    renderHistory();
+  }
+
+  function setupHistorySwipe(row, id) {
+    let startX = 0;
+    let currentX = 0;
+    let dragging = false;
+
+    row.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+      dragging = true;
+      row.style.transition = "none";
+    }, { passive: true });
+
+    row.addEventListener("touchmove", (e) => {
+      if (!dragging) return;
+      currentX = e.touches[0].clientX;
+      const diff = currentX - startX;
+      if (diff < 0) { // Only swipe left
+        row.style.transform = `translateX(${diff}px)`;
+      }
+    }, { passive: true });
+
+    row.addEventListener("touchend", () => {
+      dragging = false;
+      row.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+      const diff = currentX - startX;
+      if (diff < -80) {
+        row.style.transform = "translateX(-120%)";
+        row.style.opacity = "0";
+        if (window.NativeBridge) window.NativeBridge.haptic("heavy");
+        showToast("Scan removed from history");
+        setTimeout(() => {
+          deleteFromHistory(id);
+        }, 300);
+      } else {
+        row.style.transform = "translateX(0)";
+      }
+      currentX = 0;
+    });
+  }
+
   function renderHistory() {
     const history = JSON.parse(localStorage.getItem("scan-history")) || [];
     historyContainer.innerHTML = "";
@@ -799,6 +845,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <span class="history-badge-gender ${item.gender === "Male" ? "badge-male" : "badge-female"}">${item.gender}</span>
       `;
       historyContainer.appendChild(row);
+      setupHistorySwipe(row, item.id);
     });
   }
 
