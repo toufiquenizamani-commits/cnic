@@ -1,0 +1,432 @@
+/* Setu Stylesheet Layout */
+
+/* Theme Color Tokens */
+.dark-theme {
+  --bg-deep: #010a05;
+  --bg-surface: #0a1b11;
+  --border-subtle: #162f21;
+  --text-primary: #e3f2e6;
+  --text-secondary: #578467;
+  --accent-blue: #00b0ff;
+  --accent-gold: #ffd700;
+  --accent-alert: #ff453a;
+  --shadow-color: rgba(0, 0, 0, 0.55);
+}
+
+.light-theme {
+  --bg-deep: #f2f7f4;
+  --bg-surface: #ffffff;
+  --border-subtle: #d0e1d6;
+  --text-primary: #112017;
+  --text-secondary: #5a7b66;
+  --accent-blue: #0077c2;
+  --accent-gold: #c5a059;
+  --accent-alert: #d32f2f;
+  --shadow-color: rgba(17, 32, 23, 0.08);
+}
+
+:root {
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --transition-normal: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --card-width: 280px;
+  --card-height: 170px;
+}
+
+/* Global Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition-normal);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 12px 16px;
+  overflow-y: auto;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  font-size: 1.25rem;
+}
+
+.header-logo h1 {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+/* 3D Card Rotator Layout */
+.card-visual-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.card-perspective-container {
+  perspective: 1000px;
+  width: var(--card-width);
+  height: var(--card-height);
+  position: relative;
+}
+
+.digital-card-rotator {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 12px 30px var(--shadow-color);
+  border-radius: 14px;
+}
+
+/* Card Flipping Classes */
+.digital-card-rotator.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px;
+}
+
+/* Front Face: Smart Card style */
+.card-front {
+  background: linear-gradient(135deg, #0d361c, #05140b);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.smart-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-emblem {
+  font-size: 1rem;
+}
+
+.card-header-txt {
+  font-size: 0.45rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.card-header-txt span {
+  font-size: 0.38rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.smart-card-chip {
+  width: 32px;
+  height: 24px;
+  background: linear-gradient(135deg, #e0a96d, #9c6c3e);
+  border-radius: 4px;
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chip-contacts {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  height: 100%;
+  position: relative;
+}
+
+.chip-contacts::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.smart-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 8px;
+}
+
+.lbl {
+  font-size: 0.42rem;
+  color: var(--text-secondary);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.val {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+/* Back Face: Localized License Plate style */
+.card-back {
+  background: #263238; /* default */
+  transform: rotateY(180deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.plate-inner-container {
+  border: 4px solid #ffffff;
+  border-radius: 8px;
+  width: 95%;
+  height: 85%;
+  background: #ffffff;
+  color: #111111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px;
+}
+
+.plate-emblem {
+  font-size: 0.8rem;
+}
+
+.plate-number {
+  font-family: monospace, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.plate-province-name {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+/* Localized Plate Class Variations */
+.plate-punjab {
+  background: linear-gradient(180deg, #1b5e20 40%, #ffffff 40%);
+  color: #111111;
+}
+
+.plate-sindh {
+  background: #ffffff;
+  border: 4px solid #d32f2f;
+  color: #111111;
+}
+
+.plate-islamabad {
+  background: linear-gradient(135deg, #00838f, #e0f7fa);
+  color: #111111;
+}
+
+/* Flip action button overlay */
+.flip-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  z-index: 10;
+}
+
+.flip-btn:active {
+  transform: scale(0.9);
+}
+
+/* Input Card & Control area */
+.glass-card {
+  background: rgba(10, 27, 17, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.panel-title-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-container input {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  height: 38px;
+  padding: 0 10px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  outline: none;
+}
+
+.search-container input:focus {
+  border-color: var(--accent-blue);
+}
+
+.validation-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.status-incomplete {
+  color: var(--text-secondary);
+}
+
+.status-valid {
+  color: var(--accent-blue);
+}
+
+.status-invalid {
+  color: var(--accent-alert);
+}
+
+/* Action Chips */
+.chip-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-chip {
+  height: 40px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: var(--transition-normal);
+}
+
+.verify-chip {
+  background: var(--accent-blue);
+  color: #ffffff;
+}
+
+.cplc-chip {
+  background: rgba(255, 69, 58, 0.1);
+  border: 1px solid rgba(255, 69, 58, 0.3);
+  color: var(--accent-alert);
+}
+
+.action-chip:active {
+  transform: scale(0.98);
+}
+
+/* Light Theme Contrast parity overrides */
+.light-theme .glass-card {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.light-theme .theme-toggle-btn {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.light-theme .card-front {
+  background: linear-gradient(135deg, #1b5e20, #0d3c1e);
+}
